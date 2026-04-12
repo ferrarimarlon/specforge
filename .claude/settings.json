@@ -1,27 +1,14 @@
 {
   "defaultAgent": "specforge-default",
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "matcher": "\\b(build|implement|create|develop|write|add|make|code|generate)\\b",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo '[specforge-default] Spec-first policy active. If no spec.yaml exists for this task, /specforge will be invoked before any implementation.'"
-          }
-        ]
+  "enabledPlugins": {
+    "specforge@specforge-marketplace": true
+  },
+  "extraKnownMarketplaces": {
+    "specforge-marketplace": {
+      "source": {
+        "source": "directory",
+        "path": "."
       }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if ls specforge-bundle/spec.yaml 2>/dev/null | grep -q spec.yaml; then echo '[specforge-default] spec.yaml found — implementation authorized.'; else echo '[specforge-default] WARNING: No spec.yaml detected. Run /specforge before writing code.'; fi"
-          }
-        ]
-      }
-    ]
+    }
   }
 }

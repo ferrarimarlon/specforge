@@ -6,7 +6,7 @@ This project uses **SpecForge** as its default development framework. All implem
 
 ## Default Agent
 
-The `specforge-default` agent (`.claude/agents/specforge-default.md`) is the entry point for all development tasks. It:
+The `specforge-default` agent (`plugins/specforge/agents/specforge-default.md`, symlinked under `.claude/agents/`) is the entry point for all development tasks. It:
 - Preloads the `specforge` and `specforge-implement` skills
 - Enforces spec compilation before any code is written
 - Routes to the correct skill based on whether a `spec.yaml` already exists
@@ -26,18 +26,23 @@ The `specforge-default` agent (`.claude/agents/specforge-default.md`) is the ent
 ```
 .
 ├── CLAUDE.md                          ← you are here (project memory)
+├── .claude-plugin/
+│   └── marketplace.json               ← Claude Code plugin marketplace catalog
+├── plugins/specforge/                 ← distributable Claude Code plugin (canonical skills + agent)
+│   ├── .claude-plugin/plugin.json     ← plugin manifest (includes spec-first hooks)
+│   ├── agents/specforge-default.md
+│   └── skills/{specforge,specforge-implement}/
 ├── .claude/
-│   ├── settings.json                  ← hooks + default agent config
-│   ├── agents/
-│   │   └── specforge-default.md       ← default agent definition
-│   └── skills/
-│       ├── specforge/                 ← spec compilation skill
-│       └── specforge-implement/       ← implementation skill
+│   ├── settings.json                  ← default agent + marketplace registration
+│   ├── agents/specforge-default.md    ← symlink → plugins/specforge/agents/…
+│   └── skills/                        ← symlinks → plugins/specforge/skills/…
 ├── examples/                          ← example SpecForge bundles
 │   ├── sample-bundle/                 ← parser CLI example
 │   └── mini-os/                       ← minimal x86 OS example
 └── src/                               ← SpecForge Python package
 ```
+
+Install the plugin from this repo with `/plugin install specforge@specforge-marketplace` after adding the marketplace, or use another host’s copy via `/plugin marketplace add <owner/repo>`.
 
 ## Conventions
 
