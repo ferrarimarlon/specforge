@@ -44,7 +44,7 @@ def render_banner() -> str:
         _frame_line("+", "-", "+", inner_width),
         *_frame_multiline(wordmark, inner_width),
         _frame_content("", inner_width),
-        _frame_content(f"{BOLD}{ORANGE}Spec Forge{RESET}  {DIM}{SLATE}v{__version__}{RESET}", inner_width),
+        _frame_content(f"{BOLD}{ORANGE}SpecForge{RESET}  {DIM}{SLATE}v{__version__}{RESET}", inner_width),
         _frame_content(f"{STEEL}Compile requirements into Claude execution artifacts{RESET}", inner_width),
         _frame_content("", inner_width),
         _frame_split(
@@ -84,7 +84,7 @@ def render_footer() -> str:
 
 def render_help() -> str:
     lines = [
-        f"{BOLD}{ORANGE}Spec Forge help{RESET}",
+        f"{BOLD}{ORANGE}SpecForge help{RESET}",
         f"{STEEL}specforge \"<task text>\"{RESET}",
         f"{DIM}{SLATE}Run directly from the shell with a positional requirement.{RESET}",
         f"{STEEL}specforge --prompt <text>{RESET}",
@@ -100,7 +100,7 @@ def render_help() -> str:
 def render_shell_intro() -> str:
     return (
         f"{BOLD}{STEEL}Describe the requirement you want to compile.{RESET} "
-        f"{DIM}{SLATE}Spec Forge will ask for the output folder next.{RESET}"
+        f"{DIM}{SLATE}SpecForge will ask for the output folder next.{RESET}"
     )
 
 

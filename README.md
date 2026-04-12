@@ -4,7 +4,47 @@
 
 SpecForge compiles natural-language requirements into a structured artifact bundle that gives a coding agent a stable, auditable contract to work from. The bundle is a **runtime-ready execution harness for Claude**: concrete files that drive implementation and verification alongside the agent.
 
-![Spec Forge v0.1.0 interactive CLI](docs/cli-demo.png)
+![SpecForge v0.1.0 interactive CLI](docs/cli-demo.png)
+
+---
+
+## How it works
+
+You write a **prompt**. SpecForge runs a compile pipeline: LLM draft, normalization into a `Spec` model, **lint** against policy, then **packaging** into files the agent can re-read. The repository also ships **Claude Code skills** under `.claude/skills/`, so the same workflow can run **inside** Claude Code (with MCP context when available), not only via the terminal CLI.
+
+```text
+                         +------------------+
+                         |  You write the   |
+                         |  prompt          |
+                         +--------+---------+
+                                  |
+                                  v
+              +-------------------------------------------+
+              |  SpecForge: draft -> normalize -> lint    |
+              |            -> pass gate -> package        |
+              +--------------------+----------------------+
+                                   |
+           +-----------------------+------------------------+
+           |                       |                        |
+           v                       v                        v
+  +----------------+    +----------------------+   +---------------------+
+  |  spec.yaml     |    |  Claude bundle       |   |  Claude Code skills |
+  |  (contract)    |    |  CLAUDE.md,          |   |  in this repo       |
+  |                |    |  implement command,  |   |  (.claude/skills/)  |
+  |                |    |  checklist, evals    |   |  same pipeline      |
+  +--------+-------+    +----------+-----------+   +----------+----------+
+           |                       |                        |
+           +-----------------------+------------------------+
+                                   |
+                                   v
+                        +------------------------+
+                        |  Implement from the    |
+                        |  contract (CLI output  |
+                        |  or in-session skills) |
+                        +------------------------+
+```
+
+For the linear step list and policy details, see [The Compilation Pipeline](#the-compilation-pipeline) below.
 
 ---
 
@@ -87,6 +127,27 @@ Write the task. Choose an output folder. SpecForge generates the bundle. The sta
 # From file
 .venv/bin/specforge --from-file prompt.txt
 ```
+
+---
+
+## Using Claude Code (preconfigured)
+
+This repository is set up for **Claude Code** out of the box: open the project folder in Claude Code and you inherit the same spec-first workflow without installing a marketplace plugin.
+
+| Already in the repo | What it does |
+| --- | --- |
+| `.claude/settings.json` | Sets **`defaultAgent`** to **`specforge-default`**, so new sessions use the SpecForge agent by default. |
+| `.claude/agents/specforge-default.md` | Agent definition (source: `plugins/specforge/agents/`). Preloads the `specforge` and `specforge-implement` skills. |
+| `.claude/skills/` | Symlinks to `plugins/specforge/skills/` — **`/specforge`** and **`/specforge-implement`** are available as slash commands. |
+| Root `CLAUDE.md` | Project memory the agent reads every turn (spec-first rules and conventions). |
+
+**Typical flow**
+
+1. **New feature or ambiguous request** — Run **`/specforge`** (or ask in natural language; the default agent should route to compiling a bundle first). Point the skill at your requirement; it can use MCP tools for repo or ticket context if you have them connected. The bundle lands under a dedicated directory (e.g. `./specforge-bundle/`), not inside `.claude/skills/`.
+2. **You already have a validated `spec.yaml` for the task** — Run **`/specforge-implement`** and follow the bundle’s checklist and commands.
+3. **Keep memory honest** — Put durable decisions in the **bundle’s** `CLAUDE.md` and the root **`CLAUDE.md`** only when they are project-wide; avoid using skills output directories as scratch pads.
+
+If your Claude Code UI lets you pick an agent, choose **`specforge-default`**; if you rely on defaults only, this repo already selects it for you.
 
 ---
 
@@ -269,19 +330,11 @@ The `examples/mini-os/` directory is a complete end-to-end demonstration. SpecFo
 
 ### The original prompt
 
-The human-facing seed was five words:
-
-```
-build a simple operating system
-```
-
 The checked-in `examples/mini-os/spec.yaml` stores a fuller `metadata.source_prompt` (what the compiler session actually recorded): path, architecture, and tooling constraints layered on top of that seed:
 
 ```yaml
 source_prompt: >
-  build a simple operating system inside examples/mini-os — x86 bare-metal,
-  minimalist resources, bootloader + kernel with VGA text output,
-  no external libraries, runnable in QEMU
+  build a simple operating system
 ```
 
 **What this case study documents**
