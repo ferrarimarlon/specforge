@@ -26,14 +26,11 @@ The `specforge-default` agent (`plugins/specforge/agents/specforge-default.md`, 
 ```
 .
 ├── CLAUDE.md                          ← you are here (project memory)
-├── .claude-plugin/
-│   └── marketplace.json               ← Claude Code plugin marketplace catalog
-├── plugins/specforge/                 ← distributable Claude Code plugin (canonical skills + agent)
-│   ├── .claude-plugin/plugin.json     ← plugin manifest (includes spec-first hooks)
+├── plugins/specforge/                 ← canonical skills + default agent source (symlinked into .claude/)
 │   ├── agents/specforge-default.md
 │   └── skills/{specforge,specforge-implement}/
 ├── .claude/
-│   ├── settings.json                  ← default agent + marketplace registration
+│   ├── settings.json                  ← default agent
 │   ├── agents/specforge-default.md    ← symlink → plugins/specforge/agents/…
 │   └── skills/                        ← symlinks → plugins/specforge/skills/…
 ├── examples/                          ← example SpecForge bundles
@@ -41,8 +38,6 @@ The `specforge-default` agent (`plugins/specforge/agents/specforge-default.md`, 
 │   └── mini-os/                       ← minimal x86 OS example
 └── src/                               ← SpecForge Python package
 ```
-
-Install the plugin from this repo with `/plugin install specforge@specforge-marketplace` after adding the marketplace, or use another host’s copy via `/plugin marketplace add <owner/repo>`.
 
 ## Conventions
 

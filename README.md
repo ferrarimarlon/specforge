@@ -65,33 +65,11 @@ These files give the agent a stable anchor it can revisit throughout a long sess
 |---|---|
 | **Python CLI** (`specforge`) | Runs locally with your API key. Interactive or direct-prompt mode. Writes the artifact bundle to your chosen output directory (default: `specforge-bundle`). |
 | **Claude Code skills** | Project skills under `.claude/skills/` (symlinks into `plugins/specforge/skills/`) teach Claude the same pipeline inside the session. No terminal required. MCP-connected tools can supply repo, docs, and ticket context during spec authoring. |
-| **Claude Code plugin** | The same skills, default agent, and spec-first hooks ship as the **`specforge`** plugin via `.claude-plugin/marketplace.json`. Install from any clone or from GitHub after you publish the repo. |
 
 **Bundled skills:**
 
 - **`/specforge`** — Compile a requirement into `spec.yaml` and the full artifact bundle. Gathers MCP context first.
 - **`/specforge-implement`** — Execute implementation when a bundle already exists. No re-compilation.
-
-### Claude Code plugin (marketplace)
-
-This repository follows the [plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces) layout: `specforge-marketplace` lists the `specforge` plugin under `plugins/specforge/`. After you push to GitHub (or another git host), anyone can add the catalog and install the plugin:
-
-```bash
-# From the published repo (GitHub shorthand)
-claude plugin marketplace add ferrarimarlon/specforge
-claude plugin install specforge@specforge-marketplace
-```
-
-Inside Claude Code you can use the same sources with `/plugin marketplace add` and `/plugin install specforge@specforge-marketplace`.
-
-To validate locally before publishing:
-
-```bash
-claude plugin validate .
-claude plugin validate plugins/specforge
-```
-
-For development, this project’s `.claude/settings.json` registers the marketplace from the repo root (`directory` → `.`) and enables the `specforge` plugin so skills and hooks match what users get from the marketplace.
 
 ---
 
