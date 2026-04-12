@@ -258,6 +258,120 @@ In-Claude authoring and handoff:
 
 Example generated bundle (for reference): `examples/sample-bundle/`
 
+## Case Study: Mini OS
+
+The `examples/mini-os/` directory is a complete SpecForge-driven implementation of a minimal x86 bare-metal operating system. It shows the full workflow from a single prompt to a bootable disk image.
+
+![MiniOS v0.1 running in QEMU — boot summary, memory map, and GDT](docs/minios-qemu.png)
+
+### The original prompt
+
+```
+build a simple operating system
+```
+
+### What the skill compiled
+
+Running `/specforge` against that prompt produced the full artifact bundle in one step:
+
+| Artifact | Role |
+| --- | --- |
+| `spec.yaml` | Operational contract: objective, assumptions, constraints, success criteria, hypotheses, actions, decision rules |
+| `CLAUDE.md` | Persistent project memory: guardrails, known pitfalls, decision log |
+| `.claude/commands/implement-from-spec.md` | Implementation entrypoint — step-by-step execution recipe |
+| `acceptance-checklist.md` | Delivery gate: every criterion checked with evidence |
+| `evals/scope_drift_cases.yaml` | Scope evaluation seeds — patterns that must match or not match |
+
+### The generated spec at a glance
+
+**Objective** — 512-byte BIOS bootloader + freestanding C kernel → VGA text output → boots in QEMU from a raw disk image, no external libraries.
+
+**Constraints (hard limits from `spec.yaml`)**
+- Bootloader must be exactly 512 bytes and end with the `0xAA55` BIOS signature.
+- Kernel is freestanding C only — no libc, no crt0, no runtime.
+- Zero external libraries; toolchain is nasm + gcc -m32 + ld.
+- All files inside `examples/mini-os/`.
+- `make run` is the single command to boot in QEMU.
+
+**Hypotheses the spec reasoned about**
+
+| ID | Claim | Confidence |
+| --- | --- | --- |
+| h1 | A 512-byte NASM bootloader can load, switch to protected mode, and hand off to a C kernel at 0x1000 | 0.95 |
+| h2 | A freestanding C kernel can write directly to VGA framebuffer 0xB8000, producing readable coloured output | 0.97 |
+| h3 | A Makefile using only nasm + gcc -m32 + ld can produce a bootable raw image runnable in qemu-system-x86_64 | 0.92 |
+
+**Actions the spec decomposed the work into**
+
+| ID | Type | Description |
+| --- | --- | --- |
+| a1 | design | Create directory layout: `boot/`, `kernel/`, `linker.ld`, `Makefile` |
+| a2 | implement | Write `boot/boot.asm` — 16-bit startup, INT 13h disk read, A20, GDT, protected-mode switch, jump to 0x1000 |
+| a3 | implement | Write `kernel/kernel.c` — VGA helpers and `kernel_main` banner |
+| a4 | implement | Write `linker.ld` — sections at 0x1000, flat binary output |
+| a5 | implement | Write `Makefile` — `all`, `run`, `clean` targets; produce `build/os.img` |
+| a6 | validate | Run `make`, check boot.bin size, boot in QEMU, verify VGA output |
+
+Each action declares `supports` links to the hypotheses it validates, so the spec is auditable as a graph.
+
+**Scope contract — what the spec explicitly fenced out**
+
+```yaml
+must_include:
+  - 512-byte bootloader (NASM)
+  - protected-mode switch
+  - freestanding C kernel
+  - VGA text output
+  - Makefile
+  - QEMU run target
+
+must_not_include:
+  - libc or any runtime library
+  - filesystem driver
+  - keyboard/interrupt handling
+  - multitasking or scheduling
+  - anything outside examples/mini-os/
+```
+
+### Scope drift evaluation
+
+`evals/scope_drift_cases.yaml` holds 11 machine-checkable seeds derived from the spec. Six are negative checks (patterns that must never appear — no `#include <stdio.h>`, no `-lpthread`, no IDT, no scheduler keywords) and five are positive checks (files that must exist and contain specific keywords like `0xAA55`, `0xB8000`, `-ffreestanding`).
+
+### Implementation and evidence
+
+Running `/implement-from-spec` executed the six actions in order. The acceptance checklist was filled with evidence, not approximations:
+
+```
+$ make
+  [OK] boot.bin     512 bytes
+  [OK] kernel.bin   2445 bytes
+  [OK] os.img       65536 bytes
+  [OK] magic        55aa
+
+$ xxd -s 510 -l 2 build/os.img
+000001fe: 55aa
+
+$ qemu debug port output:
+MiniOS v0.1 — kernel_main reached
+[BOOT] Bootloader: 0x7C00  Kernel: 0x1000  Stack: 0x90000
+[MEM]  VGA: 0xB8000  Conv: 0x00000-0x9FFFF
+[GDT]  Code: 0x08  Data: 0x10
+Kernel halted. All systems nominal.
+```
+
+All acceptance criteria passed: `make` exits 0, `boot.bin` is exactly 512 bytes, bytes 510–511 are `55 AA`, the kernel banner appears in QEMU with coloured VGA sections, and `make clean` removes all artefacts.
+
+### What the spec prevented
+
+The decision rules in the spec handled the real hardware-level failure modes before they became dead ends:
+
+- Boot.bin > 512 bytes → trim GDT or strings, never remove the magic bytes.
+- Black screen → check `0xAA55` at offset 510 and kernel load address `0x1000`.
+- Garbled VGA → verify `(attr << 8) | char` cell encoding.
+- Linker emits ELF → add `--oformat binary` to ld invocation.
+
+The `CLAUDE.md` pitfall log captured the Apple Silicon cross-compiler issue (`i686-elf-gcc`) and the entry-point ordering problem (linking `entry.o` first so `call 0x1000` lands on `kernel_main`, not a helper function) — decisions that would otherwise disappear into conversation history.
+
 ## Next TODOs
 
 - Add a conflict-mediation structure for cases with conflicting requirements
