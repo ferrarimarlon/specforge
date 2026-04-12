@@ -35,8 +35,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--from-file", help="Input prompt file.")
     parser.add_argument(
         "--output-dir",
-        default="specforge-skill",
-        help="Output directory for generated spec and Claude bundle.",
+        default="specforge-bundle",
+        help="Output directory for generated spec and Claude bundle (artifacts are separate from .claude/skills/).",
     )
     return parser
 

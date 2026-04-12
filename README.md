@@ -13,6 +13,20 @@ SpecForge gives that request a stronger form before implementation begins.
 
 It also supports a `spec-driven development` workflow. In practice, that workflow often struggles at the hardest point: defining the full set of requirements, constraints, evidence, and guardrails needed before execution starts. SpecForge helps turn that fuzzy upfront phase into a concrete operational spec that can actually drive implementation.
 
+## Two flavors: external CLI and in-Claude skills
+
+| Flavor | Role |
+| --- | --- |
+| **Python CLI** (`specforge`) | Runs locally with API keys: LLM draft → normalized spec → lint → writes the artifact bundle under your chosen output directory (default: `specforge-bundle`). |
+| **Claude Code skills** (this repo) | Project skills under `.claude/skills/` teach Claude the same pipeline **inside** the session. MCP-connected tools can supply repo, docs, and ticket context while authoring or implementing from a spec—no terminal required for the drafting workflow. |
+
+Bundled skills:
+
+- **`specforge`** — Compile a requirement into `spec.yaml` and the usual Claude artifacts; emphasizes MCP context gathering first.
+- **`specforge-implement`** — Execute implementation when a bundle already exists.
+
+Sample CLI output (parser CLI example) lives at `examples/sample-bundle/`. Repository skills and generated bundles are intentionally separate: skills live under `.claude/skills/`, generated work typically under `./specforge-bundle` or a path you choose.
+
 ## Demo
 
 Interactive CLI: compile a requirement, then choose an output folder. The status panel shows provider, workspace, pipeline (`task -> spec -> lint -> package`), and slash commands.
@@ -237,7 +251,13 @@ Core files:
 - `src/opsspec/claude_skill.py` writes the Claude artifact bundle
 - `src/opsspec/nlp_policy.py` loads policy and scoring configuration
 
+In-Claude authoring and handoff:
+
+- `.claude/skills/specforge/` — Skill instructions and references for MCP-aware spec compilation
+- `.claude/skills/specforge-implement/` — Skill for implementation-only runs from an existing bundle
+
+Example generated bundle (for reference): `examples/sample-bundle/`
+
 ## Next TODOs
 
-- Port as a Claude Skill, creating a project flavor for integration with MCPs and the company internal ecosystem
 - Add a conflict-mediation structure for cases with conflicting requirements

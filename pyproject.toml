@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "specforge"
 version = "0.1.0"
-description = "Turn prompts into concrete specs and Claude-ready skill bundles for downstream coding agents."
+description = "Turn prompts into concrete specs and Claude-ready bundles; includes Claude Code skills under .claude/skills/ for in-session, MCP-aware workflows."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = ["PyYAML>=6.0", "pydantic>=2.8"]
