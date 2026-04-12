@@ -2,7 +2,7 @@
 
 **Turn a human request into a machine-executable contract — before the first line of code is written.**
 
-SpecForge compiles natural-language requirements into a structured artifact bundle that gives a coding agent a stable, auditable contract to work from. The output is not documentation. It is a runtime-ready execution harness for Claude.
+SpecForge compiles natural-language requirements into a structured artifact bundle that gives a coding agent a stable, auditable contract to work from. The bundle is a **runtime-ready execution harness for Claude**: concrete files that drive implementation and verification alongside the agent.
 
 ![Spec Forge v0.1.0 interactive CLI](docs/cli-demo.png)
 
@@ -10,19 +10,36 @@ SpecForge compiles natural-language requirements into a structured artifact bund
 
 ## The Problem
 
-Coding agents operate inside a context harness, not a vacuum. Every session layers request on top of guidance on top of history on top of tool output. That stack is powerful — and it is exactly where drift begins.
+In **Claude Code**, each turn draws on more than the latest user message. Each turn is assembled from a **stack of context sources**—the same architecture that makes the agent capable also dilutes any single requirement over time.
+
+Roughly, that stack looks like this:
 
 ```
-1. system and platform instructions
-2. repository and project guidance
-3. current user request          ← gets proportionally smaller over time
-4. conversation history
-5. tool outputs: logs, patches, errors, file content
+1. Claude Code / platform instructions
+2. Project memory — CLAUDE.md, settings, and repo-local rules
+3. Skills — .claude/skills/ (instructions loaded when relevant)
+4. MCP servers — live data and tools (issues, docs, APIs) merged into the session
+5. Current user request              ← shrinks relative to everything else
+6. Conversation history
+7. Tool outputs — diffs, logs, command output, file reads
 ```
 
-By mid-session, the original requirement is a small fraction of what the agent is tracking. Missing details get silently filled by pattern-matching. "Helpful" additions slip in because no hard execution contract exists. Completion gets reported in broad language even when acceptance criteria remain fuzzy.
+The **effective context window** is shared across all of that. So the explicit task you typed is only one slice of what the model must attend to. The stack is powerful — and it is exactly where **drift** begins: the requirement competes with skills output, MCP payloads, and accumulated tool traces.
 
-**SpecForge addresses this by compiling the request into a compact contract before implementation starts.**
+From there, missing details get silently filled by pattern-matching. “Helpful” additions slip in because no hard execution contract exists. Completion gets reported in broad language even when acceptance criteria remain fuzzy.
+
+**SpecForge addresses this** by compiling the request into a **compact contract before implementation churn**, **materialized as files** the agent can re-read as the Claude Code context stack grows.
+
+Architecturally, each stage targets a specific failure mode:
+
+| Layer | What it solves |
+| --- | --- |
+| **Synthesis** (LLM → structured draft) | Moves the objective from implicit chat into explicit schema fields. |
+| **Normalization** (`Spec` model) | One canonical shape: stable hypothesis/action IDs, deduped lists, typed values—so the contract is **diffable** and comparable across turns. |
+| **Lint + policy gate** | Deterministic enforcement: required sections, traceability (`actions` → `supports` → `hypotheses`), metadata, minimum evidence—**machine-checkable** completion criteria. |
+| **Packaging** (artifact bundle) | **`spec.yaml`** is the single source of truth; **`CLAUDE.md`** aligns **project memory** with guardrails; **checklist** and **scope eval seeds** make acceptance and drift **re-verifiable** after long tool traces. |
+
+Together, that turns the “small slice” of user intent into a **durable handle** inside the same harness. Claude Code still layers platform rules, skills, MCPs, and tools; the bundle adds a **revisit contract** on disk the agent can reload whenever conversation recall thins out. (See [The Compilation Pipeline](#the-compilation-pipeline) for the linear flow.)
 
 ---
 
@@ -36,9 +53,9 @@ Each compilation run outputs a bundle of five artifacts:
 | `CLAUDE.md` | Persistent project memory: guardrails, known pitfalls, decision log — Claude reads this on every turn |
 | `.claude/commands/implement-from-spec.md` | The implementation entrypoint — a step-by-step execution recipe |
 | `acceptance-checklist.md` | The delivery gate: every criterion stated as a checkable assertion with required evidence |
-| `evals/scope_drift_cases.yaml` | Machine-checkable scope seeds — patterns that must or must not appear in the implementation |
+| `evals/scope_drift_cases.yaml` | Machine-checkable scope seeds — required and forbidden patterns in the implementation |
 
-These files give the agent a stable anchor it can revisit throughout a long session. Instead of holding everything in context, the agent has a compact contract it can re-read at any step.
+These files give the agent a stable anchor it can revisit throughout a long session: a compact contract on disk, re-readable at any step without keeping the whole requirement in working memory.
 
 ---
 
@@ -123,7 +140,7 @@ The operational contract lives in `spec.yaml`. Every other artifact is a view of
 
 ### Traceability graph
 
-Each action can list hypothesis IDs in `supports`. This links planned work to the hypotheses it validates, so the spec is auditable as a directed graph — not a flat checklist. The linter enforces that every hypothesis is referenced by at least one action when policy requires it.
+Each action can list hypothesis IDs in `supports`. This links planned work to the hypotheses it validates, so the spec is auditable as a **directed graph** between actions and hypotheses. The linter enforces that every hypothesis is referenced by at least one action when policy requires it.
 
 ### Scope contract
 
@@ -246,19 +263,39 @@ examples/
 
 ## Case Study: Building a Bare-Metal OS
 
-The `examples/mini-os/` directory is a complete end-to-end demonstration. Starting from a three-word prompt, SpecForge compiled a full spec, and `/implement-from-spec` built a bootable x86 disk image.
+The `examples/mini-os/` directory is a complete end-to-end demonstration. SpecForge compiled a full spec from a **short seed phrase**, and `/implement-from-spec` built a bootable x86 disk image.
 
 ![MiniOS v0.1 running in QEMU — boot summary, memory map, and GDT](docs/minios-qemu.png)
 
 ### The original prompt
 
+The human-facing seed was five words:
+
 ```
 build a simple operating system
 ```
 
+The checked-in `examples/mini-os/spec.yaml` stores a fuller `metadata.source_prompt` (what the compiler session actually recorded): path, architecture, and tooling constraints layered on top of that seed:
+
+```yaml
+source_prompt: >
+  build a simple operating system inside examples/mini-os — x86 bare-metal,
+  minimalist resources, bootloader + kernel with VGA text output,
+  no external libraries, runnable in QEMU
+```
+
+**What this case study documents**
+
+| Layer | Content |
+| --- | --- |
+| **Seed** | Five-word phrase: `build a simple operating system`. |
+| **Full prompt record** | `metadata.source_prompt` in `spec.yaml` adds repository path (`examples/mini-os`), architecture (x86 bare-metal), stack constraints (minimal resources, no external libraries), deliverables (bootloader + kernel, VGA text), and run target (QEMU). |
+
+Seed plus metadata together are the complete, replayable input stored on disk.
+
 ### What the spec compiled
 
-Running `/specforge` against that prompt produced the full bundle in one pass:
+Running `/specforge` with that prompt text produced the full bundle in one pass:
 
 **Objective** — 512-byte BIOS bootloader + freestanding C kernel → VGA text output → boots in QEMU from a raw disk image. No external libraries. No runtime.
 
@@ -318,7 +355,7 @@ must_not_include:
 
 ### Implementation and evidence
 
-Running `/implement-from-spec` executed the six actions in order. The acceptance checklist was filled with evidence, not approximations:
+Running `/implement-from-spec` executed the six actions in order. The acceptance checklist was filled with **concrete evidence** (command output, sizes, hex dumps):
 
 ```
 $ make
@@ -342,31 +379,33 @@ All acceptance criteria passed: `make` exits 0, `boot.bin` is exactly 512 bytes,
 
 ### What the spec prevented
 
-The key shift is *when* the error was caught: **not at runtime, but while writing.**
+The key shift is *when* the error surfaced: **during spec authoring**, before QEMU or the first boot attempt.
 
-Without a spec, the loop is: write → run → fail → diagnose → fix. With a spec, known failure modes are written down before the first file exists. The agent reads them during implementation and writes code that already satisfies the constraint. The failure never materializes.
+![Errors surfaced per development phase: Spec-Driven vs No Spec](docs/error-phase-comparison.svg)
+
+A spec front-loads known failure modes before the first file exists. The agent reads them during implementation and writes code that already satisfies those constraints, so several failure classes **never reach** a QEMU run. Naming risky cases up front shortens the write → run → diagnose cycle.
 
 #### Errors caught while writing
 
-**Wrong linker output format.** The linker defaults to ELF format even when you need a raw binary. QEMU loads the image, the boot check passes, and execution jumps into header bytes instead of code. The screen goes black — identical in appearance to a wrong load address or a missing boot signature. Three different root causes, one symptom. Without foreknowledge, diagnosis is a guessing game. The spec had the fix written down before the Makefile existed: always pass `--oformat binary`. The agent applied it during authoring. The black screen never happened.
+**Wrong linker output format.** The linker defaults to ELF format even when you need a raw binary. QEMU loads the image, the boot check passes, and execution lands in ELF header bytes; the kernel entry never runs. The screen goes black — identical in appearance to a wrong load address or a missing boot signature. Three different root causes, one symptom; foreknowledge matters. The spec had the fix written down before the Makefile existed: always pass `--oformat binary`. The agent applied it during authoring, avoiding the all-black screen entirely.
 
-**Bootloader overflow.** The bootloader must fit in exactly 512 bytes, and the last two bytes are a fixed boot signature the BIOS requires to recognize the disk as bootable. If the binary grows too large and you trim the wrong thing — including the signature — the machine simply refuses to boot with no error output. The spec made the priority explicit before the assembler file was written: trim strings or data, never the signature. The agent never had to make that call under pressure.
+**Bootloader overflow.** The bootloader must fit in exactly 512 bytes, and the last two bytes are a fixed boot signature the BIOS requires to recognize the disk as bootable. If the binary grows too large and you trim the wrong bytes, the machine refuses to boot with no error output. The spec made the priority explicit before the assembler file was written: trim strings or data first; **preserve the boot signature**. The agent followed that ordering under the same constraints everyone else faces.
 
-**Garbled screen output.** Each character cell on the screen is encoded as two bytes: color first, character second. Swap the order and every cell renders as a random glyph — the screen fills with output that looks alive but is completely unreadable. The correct encoding was in the spec before the display code was written. The agent applied it directly. There was no garbled screen to debug.
+**Garbled screen output.** Each character cell on the screen is encoded as two bytes: color first, character second. Swapping the order fills the screen with glyphs that look alive but stay unreadable. The correct encoding was in the spec before the display code was written; the first VGA write matched that contract.
 
-#### Errors caught while writing — but only after being discovered first
+#### Runtime discoveries folded into persistent memory
 
-Some failures were not anticipated. They hit at runtime. But once discovered, they were logged into a persistent memory file the agent reads at the start of every session — so the next run starts with that knowledge already in place.
+A few failures surfaced first in QEMU or on the host. Each was logged into a persistent memory file the agent reads at the start of every session, so the next run starts with that knowledge already in place.
 
 **Wrong function at the kernel entry point.** The bootloader jumps to a fixed memory address expecting to land on the kernel's main function. But the C compiler places functions in whatever order it chooses — and helper functions like screen clear or string print often end up before the main function in the final binary. The bootloader lands in the middle of a helper, the kernel crashes silently, and nothing appears on screen. Once discovered, the fix — forcing the entry point to always be first — was logged permanently. Every subsequent run inherits it and writes the correct code from the start.
 
-**Compiler incompatibility on Apple Silicon.** The standard 32-bit compile flag does not work on Apple Silicon Macs. The error looks like a missing installation rather than an architecture mismatch, making it easy to spend time reinstalling tools that are already correct. Once the real cause was identified and the right cross-compiler documented, that knowledge carried forward to every future run on that platform.
+**Compiler incompatibility on Apple Silicon.** On Apple Silicon Macs, the standard 32-bit compile flag fails with messages that resemble a missing toolchain install. The underlying issue is architecture mismatch; documenting the correct cross-compiler and flags carried that knowledge forward to every future run on that platform.
 
-#### Scope creep — the failure that would never have shown up on its own
+#### Scope creep — silent expansion until late review
 
 An agent asked to "build a simple OS" has a natural instinct to keep adding things: keyboard input, a basic scheduler, interrupt handling. Each addition feels helpful. None of them announce themselves as out of scope — they just accumulate quietly.
 
-The spec's explicit list of what must *not* be included made the boundary visible before implementation began. Without it, scope drift would only become apparent when the user reviewed the final output and found an OS that did more than they asked for.
+The spec's explicit `must_not_include` list made the boundary visible **before** implementation began. Late review no longer had to discover an OS that overshot the original ask by surprise.
 
 ---
 

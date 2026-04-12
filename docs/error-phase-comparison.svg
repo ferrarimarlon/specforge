@@ -1,0 +1,149 @@
+<svg width="820" height="500" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+
+  <!-- Background -->
+  <rect width="820" height="500" fill="#0d1117" rx="10"/>
+
+  <!-- Title -->
+  <text x="410" y="36" text-anchor="middle" fill="#e6edf3" font-size="17" font-weight="600">Errors Surfaced Per Development Phase</text>
+  <text x="410" y="56" text-anchor="middle" fill="#7d8590" font-size="12">Mini OS case study · where failures are discovered: Spec-Driven vs No Spec</text>
+
+  <!--
+    Chart bounds:
+      left=90, right=790, top=75, bottom=360
+      width=700, height=285
+      scale: 285/5 = 57px per error unit
+
+    Y values → pixel y:
+      0 → 360
+      1 → 303
+      2 → 246
+      3 → 189
+      4 → 132
+      5 →  75
+
+    Phase centers (x): 160, 300, 440, 580, 720
+    Within each group (bar w=44, gap=8):
+      spec bar  x = center - 52
+      nspec bar x = center + 8   (was center-52+44+8 = center+0 → wait:
+        spec  bar: center-52 … center-52+44 = center-8
+        gap: 8px
+        nspec bar: center-8+8 = center … center+44
+        hmm, let me recalc so bars are symmetrically centered:
+          group width = 44+8+44 = 96
+          left offset  = -48
+          spec  x = center - 48
+          nspec x = center - 48 + 44 + 8 = center + 4
+  -->
+
+  <!-- Grid lines -->
+  <line x1="90" y1="360" x2="790" y2="360" stroke="#21262d" stroke-width="1"/>
+  <line x1="90" y1="303" x2="790" y2="303" stroke="#21262d" stroke-width="1"/>
+  <line x1="90" y1="246" x2="790" y2="246" stroke="#21262d" stroke-width="1"/>
+  <line x1="90" y1="189" x2="790" y2="189" stroke="#21262d" stroke-width="1"/>
+  <line x1="90" y1="132" x2="790" y2="132" stroke="#21262d" stroke-width="1"/>
+  <line x1="90" y1="75"  x2="790" y2="75"  stroke="#21262d" stroke-width="1"/>
+
+  <!-- Axes -->
+  <line x1="90" y1="75"  x2="90"  y2="362" stroke="#30363d" stroke-width="1.5"/>
+  <line x1="88" y1="360" x2="792" y2="360" stroke="#30363d" stroke-width="1.5"/>
+
+  <!-- Y-axis labels -->
+  <text x="76" y="364" text-anchor="end" fill="#7d8590" font-size="12">0</text>
+  <text x="76" y="307" text-anchor="end" fill="#7d8590" font-size="12">1</text>
+  <text x="76" y="250" text-anchor="end" fill="#7d8590" font-size="12">2</text>
+  <text x="76" y="193" text-anchor="end" fill="#7d8590" font-size="12">3</text>
+  <text x="76" y="136" text-anchor="end" fill="#7d8590" font-size="12">4</text>
+  <text x="76" y="79"  text-anchor="end" fill="#7d8590" font-size="12">5</text>
+
+  <!-- Y-axis title (rotated) -->
+  <text x="22" y="220" text-anchor="middle" fill="#7d8590" font-size="11" transform="rotate(-90,22,220)">Errors Found</text>
+
+  <!-- ═══════════════════════════════════════════
+       PHASE 1 — Spec / Design  (center x=160)
+       spec bar:  x=112, no-spec bar: x=164
+       ═══════════════════════════════════════════ -->
+
+  <!-- Spec-driven: 3 errors caught here  →  y=189, h=171 -->
+  <rect x="112" y="189" width="44" height="171" fill="#2ea043" rx="4"/>
+  <text x="134" y="182" text-anchor="middle" fill="#3fb950" font-size="13" font-weight="700">3</text>
+
+  <!-- No Spec: 0 caught here (errors haven't surfaced yet) -->
+  <rect x="164" y="358" width="44" height="2" fill="#f85149" rx="1" opacity="0.35"/>
+
+  <!-- "caught before first file" label -->
+  <text x="134" y="169" text-anchor="middle" fill="#2ea043" font-size="9.5" opacity="0.85">caught early</text>
+
+  <!-- ═══════════════════════════════════════════
+       PHASE 2 — Implementation  (center x=300)
+       ═══════════════════════════════════════════ -->
+  <rect x="252" y="358" width="44" height="2" fill="#2ea043" rx="1" opacity="0.35"/>
+  <rect x="304" y="358" width="44" height="2" fill="#f85149" rx="1" opacity="0.35"/>
+
+  <!-- ═══════════════════════════════════════════
+       PHASE 3 — Build / Compile  (center x=440)
+       ═══════════════════════════════════════════ -->
+  <rect x="392" y="358" width="44" height="2" fill="#2ea043" rx="1" opacity="0.35"/>
+  <rect x="444" y="358" width="44" height="2" fill="#f85149" rx="1" opacity="0.35"/>
+
+  <!-- ═══════════════════════════════════════════
+       PHASE 4 — Runtime / QEMU  (center x=580)
+       ═══════════════════════════════════════════ -->
+
+  <!-- Spec-driven: 2 genuine runtime errors  →  y=246, h=114 -->
+  <rect x="532" y="246" width="44" height="114" fill="#2ea043" rx="4"/>
+  <text x="554" y="239" text-anchor="middle" fill="#3fb950" font-size="13" font-weight="700">2</text>
+
+  <!-- No Spec: 5 errors hit here (3 preventable + 2 runtime)  →  y=75, h=285 -->
+  <rect x="584" y="75"  width="44" height="285" fill="#f85149" rx="4"/>
+  <text x="606" y="68"  text-anchor="middle" fill="#ff7b72" font-size="13" font-weight="700">5</text>
+
+  <!-- Annotation: "3 moved here" arrow from phase 4 no-spec bar -->
+  <text x="648" y="118" fill="#f85149" font-size="9.5" opacity="0.85">3 moved from</text>
+  <text x="648" y="130" fill="#f85149" font-size="9.5" opacity="0.85">spec phase</text>
+  <line x1="629" y1="122" x2="643" y2="122" stroke="#f85149" stroke-width="1" opacity="0.6" marker-end="url(#arrow)"/>
+
+  <!-- ═══════════════════════════════════════════
+       PHASE 5 — Review  (center x=720)
+       ═══════════════════════════════════════════ -->
+
+  <!-- Spec-driven: 0 (scope creep prevented) -->
+  <rect x="672" y="358" width="44" height="2" fill="#2ea043" rx="1" opacity="0.35"/>
+
+  <!-- No Spec: 1 scope-creep issue surfaces here  →  y=303, h=57 -->
+  <rect x="724" y="303" width="44" height="57" fill="#f85149" rx="4"/>
+  <text x="746" y="296" text-anchor="middle" fill="#ff7b72" font-size="13" font-weight="700">1</text>
+  <text x="746" y="284" text-anchor="middle" fill="#f85149" font-size="9.5" opacity="0.85">scope creep</text>
+
+  <!-- ═══════════════════════════════════════════
+       X-AXIS LABELS
+       ═══════════════════════════════════════════ -->
+  <text x="160" y="386" text-anchor="middle" fill="#c9d1d9" font-size="12" font-weight="500">Spec /</text>
+  <text x="160" y="400" text-anchor="middle" fill="#c9d1d9" font-size="12" font-weight="500">Design</text>
+
+  <text x="300" y="386" text-anchor="middle" fill="#c9d1d9" font-size="12" font-weight="500">Implement-</text>
+  <text x="300" y="400" text-anchor="middle" fill="#c9d1d9" font-size="12" font-weight="500">ation</text>
+
+  <text x="440" y="386" text-anchor="middle" fill="#c9d1d9" font-size="12" font-weight="500">Build /</text>
+  <text x="440" y="400" text-anchor="middle" fill="#c9d1d9" font-size="12" font-weight="500">Compile</text>
+
+  <text x="580" y="386" text-anchor="middle" fill="#c9d1d9" font-size="12" font-weight="500">Runtime /</text>
+  <text x="580" y="400" text-anchor="middle" fill="#c9d1d9" font-size="12" font-weight="500">QEMU</text>
+
+  <text x="720" y="393" text-anchor="middle" fill="#c9d1d9" font-size="12" font-weight="500">Review</text>
+
+  <!-- ═══════════════════════════════════════════
+       LEGEND
+       ═══════════════════════════════════════════ -->
+  <rect x="220" y="432" width="14" height="14" fill="#2ea043" rx="3"/>
+  <text x="240" y="443" fill="#c9d1d9" font-size="13">Spec-Driven  (total: 5)</text>
+
+  <rect x="400" y="432" width="14" height="14" fill="#f85149" rx="3"/>
+  <text x="420" y="443" fill="#c9d1d9" font-size="13">No Spec  (total: 6)</text>
+
+  <!-- Key insight callout -->
+  <rect x="210" y="460" width="400" height="24" fill="#161b22" rx="4"/>
+  <text x="410" y="476" text-anchor="middle" fill="#7d8590" font-size="11">
+    60% of errors caught before the first file is written — when the cost to fix is lowest
+  </text>
+
+</svg>
