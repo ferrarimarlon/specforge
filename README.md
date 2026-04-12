@@ -1,223 +1,200 @@
 # SpecForge
 
-SpecForge is a CLI for turning a human request into a set of Claude execution artifacts with clear scope, explicit constraints, and measurable delivery criteria.
+**Turn a human request into a machine-executable contract — before the first line of code is written.**
 
-The project comes from a practical problem teams hit with coding agents every day: the code may be impressive, yet the result still misses the requirement. A request starts simple, then the run accumulates logs, diffs, prior decisions, repo rules, tool outputs, and half-remembered assumptions. By the end, the agent may produce useful code, but the team still has to ask the same questions:
-
-- Did it stay inside the requested scope?
-- Did it preserve the real constraints?
-- Did it prove completion with evidence?
-- Can another run follow the same contract?
-
-SpecForge gives that request a stronger form before implementation begins.
-
-It also supports a `spec-driven development` workflow. In practice, that workflow often struggles at the hardest point: defining the full set of requirements, constraints, evidence, and guardrails needed before execution starts. SpecForge helps turn that fuzzy upfront phase into a concrete operational spec that can actually drive implementation.
-
-## Two flavors: external CLI and in-Claude skills
-
-| Flavor | Role |
-| --- | --- |
-| **Python CLI** (`specforge`) | Runs locally with API keys: LLM draft → normalized spec → lint → writes the artifact bundle under your chosen output directory (default: `specforge-bundle`). |
-| **Claude Code skills** (this repo) | Project skills under `.claude/skills/` teach Claude the same pipeline **inside** the session. MCP-connected tools can supply repo, docs, and ticket context while authoring or implementing from a spec—no terminal required for the drafting workflow. |
-
-Bundled skills:
-
-- **`specforge`** — Compile a requirement into `spec.yaml` and the usual Claude artifacts; emphasizes MCP context gathering first.
-- **`specforge-implement`** — Execute implementation when a bundle already exists.
-
-Sample CLI output (parser CLI example) lives at `examples/sample-bundle/`. Repository skills and generated bundles are intentionally separate: skills live under `.claude/skills/`, generated work typically under `./specforge-bundle` or a path you choose.
-
-## Demo
-
-Interactive CLI: compile a requirement, then choose an output folder. The status panel shows provider, workspace, pipeline (`task -> spec -> lint -> package`), and slash commands.
+SpecForge compiles natural-language requirements into a structured artifact bundle that gives a coding agent a stable, auditable contract to work from. The output is not documentation. It is a runtime-ready execution harness for Claude.
 
 ![Spec Forge v0.1.0 interactive CLI](docs/cli-demo.png)
 
-## What Problem It Solves
+---
 
-Coding agents operate inside a context harness, not inside a vacuum. The current user request is only one layer among many:
+## The Problem
 
+Coding agents operate inside a context harness, not a vacuum. Every session layers request on top of guidance on top of history on top of tool output. That stack is powerful — and it is exactly where drift begins.
+
+```
 1. system and platform instructions
 2. repository and project guidance
-3. current user request
+3. current user request          ← gets proportionally smaller over time
 4. conversation history
-5. tool outputs such as logs, patches, errors, and file content
-
-That stack is powerful, and it is also where drift begins. The core requirement can become proportionally small compared to the rest of the context. Missing details are silently completed by pattern matching. “Helpful” additions can slip in because no hard execution contract exists. Completion can be reported in broad language even when acceptance remains fuzzy.
-
-SpecForge addresses that by compiling the request into artifacts that are easier for a coding agent to follow and easier for a human to audit.
-
-## What It Produces
-
-For each request, SpecForge generates a bundle designed for Claude-driven execution:
-
-- `spec.yaml` with objective, assumptions, constraints, success criteria, evidence, actions, and decision rules
-- `CLAUDE.md` with persistent project memory and execution guardrails
-- `.claude/commands/implement-from-spec.md` as the implementation entrypoint
-- `acceptance-checklist.md` as a final delivery gate
-- `evals/scope_drift_cases.yaml` for scope-oriented evaluation seeds
-
-These files give the run a stable anchor. Instead of asking the coding agent to remember everything from a loose prompt, the workflow gives it a compact contract it can revisit throughout implementation.
-
-## Structure of the Generated Spec
-
-The operational contract lives primarily in `spec.yaml`. The other generated files are views or workflows built from that same content.
-
-### Top-level fields in `spec.yaml`
-
-| Area | Fields | Role |
-| --- | --- | --- |
-| Identity | `version`, `title`, `objective` | What is being built and why. |
-| Execution | `execution_mode` | How the run should proceed (for example step-by-step vs other modes the CLI supports). |
-| Context | `context` | Nested object: `system` (environment or repo framing) and `assumptions` (explicit premises the implementation may rely on). |
-| Boundaries | `constraints` | Hard limits: what must stay true or out of scope. |
-| Outcomes | `success_criteria`, `required_evidence` | What “done” means and what proof is required. |
-| Reasoning | `hypotheses` | List of objects with `id`, `description`, and `confidence` (0–1). These are the working beliefs the plan is based on. |
-| Work plan | `actions` | List of objects: `id`, `description`, `type`, optional `requires_confirmation`, and `supports` (hypothesis ids this action advances or depends on). |
-| Governance | `decision_rules` | When to stop, escalate, or choose between options during implementation. |
-| Provenance | `metadata` | Compiler-filled and model fields such as `source_prompt`, `generator`, `model`, optional `profile`, and optionally `scope_contract` (see below). |
-
-Strings in list fields are deduplicated when normalized; hypothesis and action `id` values are normalized to stable identifiers.
-
-### Traceability: actions and hypotheses
-
-Each action can list hypothesis ids in `supports`. That links planned work to the hypotheses it validates or depends on. The linter can require every hypothesis to be referenced by at least one action and every action to declare `supports` when policy demands it, so the spec stays auditable as a graph rather than a flat checklist.
-
-### Scope contract in metadata
-
-When present, `metadata.scope_contract` (or the field name set by `scope_contract_field` in policy) holds structured in/out scope:
-
-- `must_include`: items that must remain in scope.
-- `must_not_include`: items explicitly out of scope.
-
-That shape feeds scope evaluation and helps catch drift against the original intent.
-
-### How the other artifacts relate
-
-- **`CLAUDE.md`** summarizes constraints, decision rules, success criteria, and assumptions from the spec into persistent project memory plus an implementation protocol that points back to `spec.yaml`.
-- **`.claude/commands/implement-from-spec.md`** is the command entrypoint for running implementation against the bundled spec.
-- **`acceptance-checklist.md`** turns success criteria and related spec content into a human- and agent-checkable delivery gate.
-- **`evals/scope_drift_cases.yaml`** provides evaluation seeds derived from the spec for scope-oriented checks.
-
-Reading `spec.yaml` first is the source of truth; the other files are aligned views for Claude and for review.
-
-## How The Flow Works
-
-The runtime path is straightforward:
-
-```text
-Human request
-    |
-    v
-LLM draft JSON
-    |
-    v
-Normalization into Spec
-    |
-    v
-Programmatic lint + policy checks
-    |
-    v
-Score / pass gate
-    |
-    v
-Claude artifact bundle
+5. tool outputs: logs, patches, errors, file content
 ```
 
-The LLM produces a structured draft. The generator normalizes that draft into the internal `Spec` model. The lint step then applies deterministic checks over structure and traceability. Policy controls thresholds, required fields, minimum section counts, and scoring penalties. If the spec clears the gate, SpecForge packages the Claude artifacts for execution.
+By mid-session, the original requirement is a small fraction of what the agent is tracking. Missing details get silently filled by pattern-matching. "Helpful" additions slip in because no hard execution contract exists. Completion gets reported in broad language even when acceptance criteria remain fuzzy.
 
-This architecture is intentionally split:
+**SpecForge addresses this by compiling the request into a compact contract before implementation starts.**
 
-- generation handles synthesis
-- normalization handles shape and consistency
-- lint handles deterministic enforcement
-- packaging handles downstream Claude usability
+---
 
-## What The Lint Actually Validates
+## What SpecForge Produces
 
-The lint layer evaluates the generated spec programmatically. It checks:
+Each compilation run outputs a bundle of five artifacts:
 
-- required fields and expected types
-- minimum content counts per section
-- hypothesis identity and confidence format
-- action identity, type, and confirmation flags
-- traceability links from actions to hypotheses through `supports`
-- required metadata fields
-- duplicate or near-duplicate list entries
+| Artifact | What It Does |
+|---|---|
+| `spec.yaml` | The operational contract: objective, assumptions, constraints, success criteria, hypotheses, actions, decision rules |
+| `CLAUDE.md` | Persistent project memory: guardrails, known pitfalls, decision log — Claude reads this on every turn |
+| `.claude/commands/implement-from-spec.md` | The implementation entrypoint — a step-by-step execution recipe |
+| `acceptance-checklist.md` | The delivery gate: every criterion stated as a checkable assertion with required evidence |
+| `evals/scope_drift_cases.yaml` | Machine-checkable scope seeds — patterns that must or must not appear in the implementation |
 
-This gives the project a machine-checkable quality gate before the artifacts are handed to a coding agent.
+These files give the agent a stable anchor it can revisit throughout a long session. Instead of holding everything in context, the agent has a compact contract it can re-read at any step.
 
-Semantic truth still depends on the original request and on the draft quality produced by the model. Structural integrity, traceability discipline, and packaging readiness are enforced by code.
+---
 
-## Why This Matters For Claude
+## Two Ways To Use It
 
-Claude performs best when the execution surface is compact, explicit, and revisitable. A long-running implementation session is easier to control when the important constraints are already materialized into files the agent can read repeatedly:
+| Flavor | What It Does |
+|---|---|
+| **Python CLI** (`specforge`) | Runs locally with your API key. Interactive or direct-prompt mode. Writes the artifact bundle to your chosen output directory (default: `specforge-bundle`). |
+| **Claude Code skills** | Project skills under `.claude/skills/` teach Claude the same pipeline inside the session. No terminal required. MCP-connected tools can supply repo, docs, and ticket context during spec authoring. |
 
-- one file for the operational spec
-- one file for persistent memory
-- one checklist for acceptance
-- one command entrypoint for execution
+**Bundled skills:**
 
-That structure reduces accidental scope expansion and raises the chance of reproducible delivery across runs.
+- **`/specforge`** — Compile a requirement into `spec.yaml` and the full artifact bundle. Gathers MCP context first.
+- **`/specforge-implement`** — Execute implementation when a bundle already exists. No re-compilation.
 
-## Using The CLI
+---
 
-From the repository root:
+## Interactive CLI
+
+Write the task. Choose an output folder. SpecForge generates the bundle. The status panel shows provider, workspace, pipeline stage, and available slash commands.
 
 ```bash
+# Interactive mode
 .venv/bin/specforge
-```
 
-This opens the interactive client. You write the task, choose the output folder, and SpecForge generates the bundle.
-
-Direct execution also works:
-
-```bash
+# Direct prompt
 .venv/bin/specforge "build a deterministic SQL expression analyzer CLI"
-.venv/bin/specforge --prompt "build a deterministic SQL expression analyzer CLI"
+
+# From file
 .venv/bin/specforge --from-file prompt.txt
 ```
 
-## API Key Configuration
+---
 
-The CLI resolves the provider from the environment.
+## The Compilation Pipeline
 
-Recommended setup: create `./.venv/.env`
-
-```env
-OPENAI_API_KEY="sk-..."
-OPENAI_MODEL="gpt-codex"
-
-# or
-ANTHROPIC_API_KEY="sk-ant-..."
-ANTHROPIC_MODEL="claude-3-5-sonnet-latest"
+```
+Human request
+    │
+    ▼
+LLM draft JSON
+    │
+    ▼
+Normalization → internal Spec model
+    │
+    ▼
+Programmatic lint + policy checks
+    │
+    ▼
+Score / pass gate
+    │
+    ▼
+Claude artifact bundle
 ```
 
-Alternative shell configuration:
+The pipeline is deliberately split:
+
+- **Generation** handles synthesis — the LLM turns a prompt into structured JSON
+- **Normalization** handles shape — deduplication, stable IDs, consistent types
+- **Lint** handles enforcement — deterministic checks over structure and traceability
+- **Packaging** handles Claude usability — writing files the agent can re-read mid-session
+
+Semantic truth still depends on the original request. Structural integrity, traceability, and packaging readiness are enforced by code.
+
+---
+
+## The Spec Structure
+
+The operational contract lives in `spec.yaml`. Every other artifact is a view of the same content.
+
+| Area | Fields | Role |
+|---|---|---|
+| Identity | `version`, `title`, `objective` | What is being built and why |
+| Execution | `execution_mode` | How the run should proceed |
+| Context | `context.system`, `context.assumptions` | Environment framing and explicit premises |
+| Boundaries | `constraints` | Hard limits — what must stay true or stay out |
+| Outcomes | `success_criteria`, `required_evidence` | What "done" means and what proof is required |
+| Reasoning | `hypotheses` | Working beliefs with `id`, `description`, `confidence` (0–1) |
+| Work plan | `actions` | Discrete steps with `id`, `type`, `supports` (hypothesis links) |
+| Governance | `decision_rules` | When to stop, escalate, or choose between options |
+| Provenance | `metadata` | Source prompt, generator, model, scope contract |
+
+### Traceability graph
+
+Each action can list hypothesis IDs in `supports`. This links planned work to the hypotheses it validates, so the spec is auditable as a directed graph — not a flat checklist. The linter enforces that every hypothesis is referenced by at least one action when policy requires it.
+
+### Scope contract
+
+`metadata.scope_contract` holds two explicit fences:
+
+```yaml
+must_include:   # items that must remain in scope
+must_not_include: # items explicitly fenced out
+```
+
+This feeds scope evaluation and makes drift detectable against the original intent.
+
+---
+
+## What Lint Checks
+
+The lint layer applies deterministic checks over the generated spec:
+
+- Required fields and expected types
+- Minimum content counts per section
+- Hypothesis ID format and confidence range
+- Action ID, type, and confirmation flags
+- Traceability links from actions to hypotheses via `supports`
+- Required metadata fields
+- Duplicate or near-duplicate list entries
+
+This gives every compilation a machine-checkable quality gate before the artifacts reach a coding agent.
+
+---
+
+## Why This Works For Claude
+
+Claude performs best when the execution surface is compact, explicit, and revisitable. A long implementation session is easier to control when constraints are already materialized in files the agent can re-read at any step:
+
+- **one file** for the operational spec
+- **one file** for persistent memory
+- **one checklist** for acceptance
+- **one command** as the implementation entrypoint
+
+That structure reduces accidental scope expansion and raises the chance of reproducible delivery across runs.
+
+---
+
+## API Key Setup
+
+Create `./.venv/.env`:
+
+```env
+# Anthropic
+ANTHROPIC_API_KEY="sk-ant-..."
+ANTHROPIC_MODEL="claude-sonnet-4-6"
+
+# or OpenAI
+OPENAI_API_KEY="sk-..."
+OPENAI_MODEL="gpt-4o"
+```
+
+Or export directly:
 
 ```bash
-export OPENAI_API_KEY="sk-..."
-# or
 export ANTHROPIC_API_KEY="sk-ant-..."
 ```
 
+---
+
 ## Compiler Policy
 
-SpecForge supports an optional policy file for controlling how strict the compilation and gate should be.
+An optional policy file controls how strict compilation and the pass gate should be.
 
-Default path:
-
-```text
-./.specforge-policy.yaml
-```
-
-Override path:
-
-```bash
-export SPECFORGE_POLICY=/path/to/policy.yaml
-```
-
-Example policy:
+**Default path:** `./.specforge-policy.yaml`  
+**Override:** `export SPECFORGE_POLICY=/path/to/policy.yaml`
 
 ```yaml
 min_items:
@@ -228,39 +205,48 @@ min_items:
   required_evidence: 2
   actions: 2
   decision_rules: 2
+
 allowed_action_types: [analyze, design, implement, validate, review]
 require_action_support_links: true
 required_metadata_fields: [source_prompt]
 scope_contract_field: scope_contract
+
 lint_base_score: 100
 lint_error_penalty: 18
 lint_warning_penalty: 5
 lint_min_passing_score: 70
+
 scope_eval_base_score: 100
 scope_violation_penalty: 25
 ```
 
-## Architecture At A Glance
+---
 
-Core files:
+## Architecture
 
-- `src/opsspec/cli.py` handles the user flow
-- `src/opsspec/generator.py` compiles draft JSON into the internal spec
-- `src/opsspec/linting.py` applies deterministic quality checks
-- `src/opsspec/scope_eval.py` evaluates scope contract adherence
-- `src/opsspec/claude_skill.py` writes the Claude artifact bundle
-- `src/opsspec/nlp_policy.py` loads policy and scoring configuration
+```
+src/opsspec/
+├── cli.py           ← user flow and interactive session
+├── generator.py     ← compiles draft JSON into internal Spec model
+├── linting.py       ← deterministic quality checks
+├── scope_eval.py    ← evaluates scope contract adherence
+├── claude_skill.py  ← writes the Claude artifact bundle
+└── nlp_policy.py    ← loads policy and scoring configuration
 
-In-Claude authoring and handoff:
+.claude/skills/
+├── specforge/           ← MCP-aware spec compilation skill
+└── specforge-implement/ ← implementation-only skill for existing bundles
 
-- `.claude/skills/specforge/` — Skill instructions and references for MCP-aware spec compilation
-- `.claude/skills/specforge-implement/` — Skill for implementation-only runs from an existing bundle
+examples/
+├── sample-bundle/   ← reference output: parser CLI
+└── mini-os/         ← reference output: bare-metal x86 OS
+```
 
-Example generated bundle (for reference): `examples/sample-bundle/`
+---
 
-## Case Study: Mini OS
+## Case Study: Building a Bare-Metal OS
 
-The `examples/mini-os/` directory is a complete SpecForge-driven implementation of a minimal x86 bare-metal operating system. It shows the full workflow from a single prompt to a bootable disk image.
+The `examples/mini-os/` directory is a complete end-to-end demonstration. Starting from a three-word prompt, SpecForge compiled a full spec, and `/implement-from-spec` built a bootable x86 disk image.
 
 ![MiniOS v0.1 running in QEMU — boot summary, memory map, and GDT](docs/minios-qemu.png)
 
@@ -270,51 +256,41 @@ The `examples/mini-os/` directory is a complete SpecForge-driven implementation 
 build a simple operating system
 ```
 
-### What the skill compiled
+### What the spec compiled
 
-Running `/specforge` against that prompt produced the full artifact bundle in one step:
+Running `/specforge` against that prompt produced the full bundle in one pass:
 
-| Artifact | Role |
-| --- | --- |
-| `spec.yaml` | Operational contract: objective, assumptions, constraints, success criteria, hypotheses, actions, decision rules |
-| `CLAUDE.md` | Persistent project memory: guardrails, known pitfalls, decision log |
-| `.claude/commands/implement-from-spec.md` | Implementation entrypoint — step-by-step execution recipe |
-| `acceptance-checklist.md` | Delivery gate: every criterion checked with evidence |
-| `evals/scope_drift_cases.yaml` | Scope evaluation seeds — patterns that must match or not match |
+**Objective** — 512-byte BIOS bootloader + freestanding C kernel → VGA text output → boots in QEMU from a raw disk image. No external libraries. No runtime.
 
-### The generated spec at a glance
+**Hard constraints from `spec.yaml`:**
+- Bootloader must be exactly 512 bytes, ending with `0xAA55` BIOS signature
+- Kernel is freestanding C only — no libc, no crt0, no runtime
+- Zero external libraries; toolchain is `nasm` + `gcc -m32` + `ld`
+- All files inside `examples/mini-os/`
+- `make run` is the single command to boot in QEMU
 
-**Objective** — 512-byte BIOS bootloader + freestanding C kernel → VGA text output → boots in QEMU from a raw disk image, no external libraries.
-
-**Constraints (hard limits from `spec.yaml`)**
-- Bootloader must be exactly 512 bytes and end with the `0xAA55` BIOS signature.
-- Kernel is freestanding C only — no libc, no crt0, no runtime.
-- Zero external libraries; toolchain is nasm + gcc -m32 + ld.
-- All files inside `examples/mini-os/`.
-- `make run` is the single command to boot in QEMU.
-
-**Hypotheses the spec reasoned about**
+**Hypotheses the spec reasoned over:**
 
 | ID | Claim | Confidence |
-| --- | --- | --- |
-| h1 | A 512-byte NASM bootloader can load, switch to protected mode, and hand off to a C kernel at 0x1000 | 0.95 |
-| h2 | A freestanding C kernel can write directly to VGA framebuffer 0xB8000, producing readable coloured output | 0.97 |
-| h3 | A Makefile using only nasm + gcc -m32 + ld can produce a bootable raw image runnable in qemu-system-x86_64 | 0.92 |
+|---|---|---|
+| h1 | A 512-byte NASM bootloader can load, switch to protected mode, and hand off to a C kernel at `0x1000` | 0.95 |
+| h2 | A freestanding C kernel can write directly to VGA framebuffer `0xB8000`, producing readable coloured output | 0.97 |
+| h3 | A Makefile using only nasm + gcc -m32 + ld can produce a bootable raw image runnable in `qemu-system-x86_64` | 0.92 |
 
-**Actions the spec decomposed the work into**
+**Actions the spec decomposed the work into:**
 
 | ID | Type | Description |
-| --- | --- | --- |
+|---|---|---|
 | a1 | design | Create directory layout: `boot/`, `kernel/`, `linker.ld`, `Makefile` |
-| a2 | implement | Write `boot/boot.asm` — 16-bit startup, INT 13h disk read, A20, GDT, protected-mode switch, jump to 0x1000 |
+| a2 | implement | Write `boot/boot.asm` — 16-bit startup, INT 13h disk read, A20, GDT, protected-mode switch, jump to `0x1000` |
 | a3 | implement | Write `kernel/kernel.c` — VGA helpers and `kernel_main` banner |
-| a4 | implement | Write `linker.ld` — sections at 0x1000, flat binary output |
+| a4 | implement | Write `linker.ld` — sections at `0x1000`, flat binary output |
 | a5 | implement | Write `Makefile` — `all`, `run`, `clean` targets; produce `build/os.img` |
-| a6 | validate | Run `make`, check boot.bin size, boot in QEMU, verify VGA output |
+| a6 | validate | Run `make`, check `boot.bin` size, boot in QEMU, verify VGA output |
 
-Each action declares `supports` links to the hypotheses it validates, so the spec is auditable as a graph.
+Each action declares `supports` links to the hypotheses it validates — the spec is auditable as a graph.
 
-**Scope contract — what the spec explicitly fenced out**
+**Scope contract — what the spec explicitly fenced out:**
 
 ```yaml
 must_include:
@@ -328,14 +304,17 @@ must_include:
 must_not_include:
   - libc or any runtime library
   - filesystem driver
-  - keyboard/interrupt handling
+  - keyboard or interrupt handling
   - multitasking or scheduling
   - anything outside examples/mini-os/
 ```
 
 ### Scope drift evaluation
 
-`evals/scope_drift_cases.yaml` holds 11 machine-checkable seeds derived from the spec. Six are negative checks (patterns that must never appear — no `#include <stdio.h>`, no `-lpthread`, no IDT, no scheduler keywords) and five are positive checks (files that must exist and contain specific keywords like `0xAA55`, `0xB8000`, `-ffreestanding`).
+`evals/scope_drift_cases.yaml` holds 11 machine-checkable seeds derived from the spec:
+
+- **6 negative checks** — patterns that must never appear: `#include <stdio.h>`, `-lpthread`, IDT setup, scheduler keywords
+- **5 positive checks** — files that must exist and contain specific values: `0xAA55`, `0xB8000`, `-ffreestanding`
 
 ### Implementation and evidence
 
@@ -363,15 +342,34 @@ All acceptance criteria passed: `make` exits 0, `boot.bin` is exactly 512 bytes,
 
 ### What the spec prevented
 
-The decision rules in the spec handled the real hardware-level failure modes before they became dead ends:
+The key shift is *when* the error was caught: **not at runtime, but while writing.**
 
-- Boot.bin > 512 bytes → trim GDT or strings, never remove the magic bytes.
-- Black screen → check `0xAA55` at offset 510 and kernel load address `0x1000`.
-- Garbled VGA → verify `(attr << 8) | char` cell encoding.
-- Linker emits ELF → add `--oformat binary` to ld invocation.
+Without a spec, the loop is: write → run → fail → diagnose → fix. With a spec, known failure modes are written down before the first file exists. The agent reads them during implementation and writes code that already satisfies the constraint. The failure never materializes.
 
-The `CLAUDE.md` pitfall log captured the Apple Silicon cross-compiler issue (`i686-elf-gcc`) and the entry-point ordering problem (linking `entry.o` first so `call 0x1000` lands on `kernel_main`, not a helper function) — decisions that would otherwise disappear into conversation history.
+#### Errors caught while writing
 
-## Next TODOs
+**Wrong linker output format.** The linker defaults to ELF format even when you need a raw binary. QEMU loads the image, the boot check passes, and execution jumps into header bytes instead of code. The screen goes black — identical in appearance to a wrong load address or a missing boot signature. Three different root causes, one symptom. Without foreknowledge, diagnosis is a guessing game. The spec had the fix written down before the Makefile existed: always pass `--oformat binary`. The agent applied it during authoring. The black screen never happened.
 
-- Add a conflict-mediation structure for cases with conflicting requirements
+**Bootloader overflow.** The bootloader must fit in exactly 512 bytes, and the last two bytes are a fixed boot signature the BIOS requires to recognize the disk as bootable. If the binary grows too large and you trim the wrong thing — including the signature — the machine simply refuses to boot with no error output. The spec made the priority explicit before the assembler file was written: trim strings or data, never the signature. The agent never had to make that call under pressure.
+
+**Garbled screen output.** Each character cell on the screen is encoded as two bytes: color first, character second. Swap the order and every cell renders as a random glyph — the screen fills with output that looks alive but is completely unreadable. The correct encoding was in the spec before the display code was written. The agent applied it directly. There was no garbled screen to debug.
+
+#### Errors caught while writing — but only after being discovered first
+
+Some failures were not anticipated. They hit at runtime. But once discovered, they were logged into a persistent memory file the agent reads at the start of every session — so the next run starts with that knowledge already in place.
+
+**Wrong function at the kernel entry point.** The bootloader jumps to a fixed memory address expecting to land on the kernel's main function. But the C compiler places functions in whatever order it chooses — and helper functions like screen clear or string print often end up before the main function in the final binary. The bootloader lands in the middle of a helper, the kernel crashes silently, and nothing appears on screen. Once discovered, the fix — forcing the entry point to always be first — was logged permanently. Every subsequent run inherits it and writes the correct code from the start.
+
+**Compiler incompatibility on Apple Silicon.** The standard 32-bit compile flag does not work on Apple Silicon Macs. The error looks like a missing installation rather than an architecture mismatch, making it easy to spend time reinstalling tools that are already correct. Once the real cause was identified and the right cross-compiler documented, that knowledge carried forward to every future run on that platform.
+
+#### Scope creep — the failure that would never have shown up on its own
+
+An agent asked to "build a simple OS" has a natural instinct to keep adding things: keyboard input, a basic scheduler, interrupt handling. Each addition feels helpful. None of them announce themselves as out of scope — they just accumulate quietly.
+
+The spec's explicit list of what must *not* be included made the boundary visible before implementation began. Without it, scope drift would only become apparent when the user reviewed the final output and found an OS that did more than they asked for.
+
+---
+
+## What's Next
+
+- Conflict-mediation structure for specs with contradictory requirements
