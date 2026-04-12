@@ -1,0 +1,140 @@
+version: '0.1'
+title: Build a Simple x86 Operating System
+objective: >
+  Implement a minimal bare-metal x86 operating system inside examples/mini-os
+  consisting of a 512-byte BIOS bootloader and a small 32-bit protected-mode
+  kernel that renders coloured output to the VGA text-mode framebuffer.
+  The result must boot in QEMU from a raw disk image with no external libraries.
+
+execution_mode: step_by_step
+
+context:
+  system: >
+    Local macOS development environment. Target architecture is x86 (32-bit
+    protected mode). Build toolchain: nasm (assembler), gcc -m32 (freestanding),
+    ld -m elf_i386 (linker), qemu-system-x86_64 (emulator).
+    Output lives entirely inside examples/mini-os/.
+  assumptions:
+    - Developer has nasm, gcc (multilib), binutils, and qemu-system-x86_64 installed.
+    - No operating-system services (libc, POSIX) are available inside the kernel.
+    - BIOS INT 13h is used to load the kernel from disk in real mode.
+    - The kernel is loaded at physical address 0x1000 and jumped to after the
+      GDT is loaded and protected mode is enabled.
+    - VGA text mode (80x25, framebuffer at 0xB8000) is the only output mechanism.
+
+constraints:
+  - The bootloader must fit exactly in 512 bytes and end with the 0xAA55 signature.
+  - The kernel must be written in freestanding C (no libc, no runtime startup file).
+  - Zero external libraries — only nasm, gcc -m32 -ffreestanding, and ld.
+  - All source files and build artefacts live inside examples/mini-os/.
+  - The Makefile must produce a single bootable raw image (os.img).
+  - QEMU must be launchable with a single `make run` command.
+
+success_criteria:
+  - Running `make` inside examples/mini-os/ produces build/os.img without errors.
+  - Running `make run` boots the image in QEMU and displays the kernel banner.
+  - The VGA output shows at least: OS name, mode line, memory map, GDT info,
+    and a final "Kernel halted" message.
+  - `make clean` removes all build artefacts cleanly.
+  - No source file exceeds 300 lines; the project is self-contained.
+
+hypotheses:
+  - id: h1
+    description: >
+      A 512-byte NASM bootloader can load, switch to protected mode, and
+      hand off control to a freestanding C kernel loaded at 0x1000.
+    confidence: 0.95
+  - id: h2
+    description: >
+      A freestanding C kernel can write directly to the VGA framebuffer
+      (0xB8000) without any runtime support, producing readable coloured output.
+    confidence: 0.97
+  - id: h3
+    description: >
+      A Makefile using only nasm + gcc -m32 + ld can produce a bootable
+      raw disk image runnable in qemu-system-x86_64.
+    confidence: 0.92
+
+required_evidence:
+  - make exits 0 and build/os.img is created.
+  - QEMU displays the kernel banner with coloured text sections.
+  - boot.bin is exactly 512 bytes.
+  - os.img is a valid raw disk image (first 2 bytes of sector 511-512 = AA 55).
+
+actions:
+  - id: a1
+    description: >
+      Create the directory layout:
+      boot/, kernel/, build/ (via Makefile), linker.ld, Makefile.
+    type: design
+    requires_confirmation: false
+    supports: [h1, h2, h3]
+
+  - id: a2
+    description: >
+      Write boot/boot.asm — 16-bit startup, BIOS disk read (INT 13h),
+      A20 enable, GDT definition, protected-mode switch, jump to 0x1000.
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+
+  - id: a3
+    description: >
+      Write kernel/kernel.c — VGA framebuffer helpers (clear, putchar, print,
+      print_uint, print_hex, hline) and kernel_main showing banner + system info.
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+
+  - id: a4
+    description: >
+      Write linker.ld placing .text/.rodata/.data/.bss starting at 0x1000,
+      with ENTRY(kernel_main) and flat binary output.
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h3]
+
+  - id: a5
+    description: >
+      Write Makefile with targets: all (default), run (qemu), clean.
+      Produce build/boot.bin, build/kernel.bin, then cat + truncate into build/os.img.
+    type: implement
+    requires_confirmation: false
+    supports: [h3]
+
+  - id: a6
+    description: >
+      Validate: run `make` and confirm os.img is created; run `make run` and
+      confirm QEMU boots and shows VGA output; verify boot.bin is 512 bytes.
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2, h3]
+
+decision_rules:
+  - If boot.bin exceeds 512 bytes, trim the GDT or message strings.
+  - If QEMU shows a black screen, verify the 0xAA55 signature and kernel load address.
+  - If gcc -m32 fails, check that gcc-multilib is installed (apt/brew).
+  - If linker produces ELF output, ensure --oformat binary is passed to ld.
+  - If kernel output is garbled, verify the VGA attribute byte order (attr<<8 | char).
+
+metadata:
+  source_prompt: >
+    build a simple operating system inside examples/mini-os — x86 bare-metal,
+    minimalist resources, bootloader + kernel with VGA text output,
+    no external libraries, runnable in QEMU
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - 512-byte bootloader (NASM)
+      - protected-mode switch
+      - freestanding C kernel
+      - VGA text output
+      - Makefile
+      - QEMU run target
+    must_not_include:
+      - libc or any runtime library
+      - filesystem driver
+      - keyboard/interrupt handling
+      - multitasking or scheduling
+      - anything outside examples/mini-os/

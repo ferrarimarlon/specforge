@@ -1,0 +1,66 @@
+version: '0.1'
+title: Scope Drift Eval Seeds — Mini OS
+
+must_not_introduce:
+  - id: e1
+    check: No libc or standard headers included in kernel
+    pattern: '#include\s*<(stdio|stdlib|string|unistd|sys/).*>'
+    expect: no_match
+
+  - id: e2
+    check: No external library linked (only nasm + gcc + ld)
+    pattern: '-l(c|m|pthread|SDL|ncurses)'
+    expect: no_match
+
+  - id: e3
+    check: No filesystem driver implemented
+    keywords: [fat, ext2, filesystem, inode, directory entry]
+    expect: no_match
+
+  - id: e4
+    check: No interrupt or IDT setup
+    keywords: [IDT, idt_descriptor, interrupt handler, isr, irq]
+    expect: no_match
+
+  - id: e5
+    check: No multitasking or scheduler
+    keywords: [scheduler, task_switch, context_switch, process, thread]
+    expect: no_match
+
+  - id: e6
+    check: No files created outside examples/mini-os/
+    pattern: '\.\./(?!mini-os)'
+    expect: no_match
+
+must_include:
+  - id: e7
+    check: boot.asm exists and contains 0xAA55 signature
+    file: boot/boot.asm
+    keyword: '0xAA55'
+    expect: match
+
+  - id: e8
+    check: kernel.c exists and writes to VGA_BASE 0xB8000
+    file: kernel/kernel.c
+    keyword: '0xB8000'
+    expect: match
+
+  - id: e9
+    check: Makefile has a run target invoking qemu
+    file: Makefile
+    keyword: qemu
+    expect: match
+
+  - id: e10
+    check: linker.ld sets load address to 0x1000
+    file: linker.ld
+    keyword: '0x1000'
+    expect: match
+
+  - id: e11
+    check: Kernel uses -ffreestanding flag
+    file: Makefile
+    keyword: '-ffreestanding'
+    expect: match
+
+cases: []
