@@ -12,8 +12,6 @@ ForgeMySpec compiles natural-language requirements into a structured artifact bu
 
 ![ForgeMySpec comparative results](experiments/forgemyspec_chart.png)
 
-![Average Score by Category](experiments/average_score_by_category.png)
-
 ForgeMySpec matters most when the task stops being trivial. Once a requirement has interacting rules, validation paths, derived fields, security constraints, or multiple edge cases, “just write the code” starts to look correct long before it is actually safe or complete. ForgeMySpec turns that ambiguity into an executable contract first, so the agent implements against a stable target instead of improvising under context pressure.
 
 Across 17 benchmark projects, both approaches usually produced something that looked functional. The difference showed up in the parts that are expensive to discover later: silent bugs, structural drift, and security mistakes that do not necessarily break the happy path. ForgeMySpec consistently held quality higher, and the gap widened as the scenarios became more complex.
@@ -31,6 +29,8 @@ Across 17 benchmark projects, both approaches usually produced something that lo
 That advantage matters in the places teams actually pay for mistakes: approval flows, invariants, conditional rules, security boundaries, and business logic that cannot be reconstructed reliably from the final code alone. ForgeMySpec keeps those constraints explicit from the start and gives the agent a tighter target to execute against.
 
 For tiny one-off scripts, the extra structure may not matter. For work with multiple interacting constraints and real failure modes, ForgeMySpec gives the agent a measurable advantage.
+
+![Average Score by Category](experiments/average_score_by_category.png)
 
 Full data: [`experiments/COMPARATIVE_REPORT.md`](experiments/COMPARATIVE_REPORT.md)
 
