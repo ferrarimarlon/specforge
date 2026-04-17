@@ -851,19 +851,17 @@ O threshold de benefício do ForgeMySpec permanece em ~3 regras de negócio com 
 
 ## R4.5. Observação Principal — P17
 
-**O spec não ensina algoritmos — ele mantém o agente honesto sobre o que foi decidido.**
+**P17 mostrou uma separação clara entre acerto algorítmico e acerto contratual.**
 
-Tanto WF quanto NF implementaram corretamente todos os algoritmos complexos: DFS para detecção de ciclos, BFS para propagação de falhas, Kahn com tiebreak de prioridade para ordenação topológica. Nenhuma versão precisou do spec para acertar esses algoritmos. O implementador sem framework, quando conhece o domínio, resolve a lógica difícil com competência.
+As duas versões acertaram a parte difícil da lógica: DFS para detectar ciclos, BFS para propagação de falhas e ordenação topológica com desempate por prioridade. O desempenho do spec não apareceu na capacidade de “descobrir o algoritmo certo”, porque isso já estava ao alcance das duas abordagens.
 
-A diferença emergiu em outro lugar: nos **contratos implícitos entre camadas** — as decisões de design que não são algoritmos, mas que definem o que é verdade sobre o sistema em todo momento. O spec forçou a resolução explícita de perguntas que a implementação direta não colocaria:
+- *Persistência de estado:* o spec definiu que `ready` nunca deve ser salvo em disco e deve ser sempre recomputado no load. A versão NF persistiu `ready` no JSON, o que não quebra o fluxo, mas deixa o estado salvo fora da regra do sistema.
+- *Formato de saída:* o spec definiu que o `report` deve mostrar apenas statuses com contagem maior que zero. A versão NF exibiu todos os statuses, inclusive os zerados.
+- *Sequência de atualização após falha:* o spec definiu o fluxo completo `fail -> propagate -> recompute_ready -> save`. A versão NF omitiu a etapa de `recompute_ready`.
 
-- *O status "ready" deve ser armazenado ou recomputado?* O spec respondeu antes do primeiro `if`: "ready nunca persiste — sempre recomputado no load." A versão NF nunca se fez essa pergunta. Salvou o estado in-memory como estava, o que funciona, mas cria um arquivo de estado tecnicamente incorreto.
-- *O que exatamente o `report` deve exibir?* O spec especificou "apenas statuses com contagem > 0." A versão NF exibiu todos — razoável, mas divergente.
-- *Qual o fluxo obrigatório após um `fail`?* O spec listou: "fail → propagate → recompute_ready → save." A versão NF omitiu `recompute_ready` — safe em prática, mas incompleto como contrato.
+Esses desvios surgiram em decisões que ficaram implícitas durante a implementação. O spec fechou essas regras antes do código e reduziu o espaço para interpretação local.
 
-O ponto central é que **a versão NF não errou porque não sabia — errou porque nunca foi obrigada a decidir**. O processo de escrever o spec forçou a articulação explícita de cada invariante antes de qualquer linha de código. O resultado não é só um artefato de documentação: é um agente de implementação que opera com a consciência precisa do que foi acordado, e não com as melhores suposições do momento.
-
-Isso revela o valor mais sutil do framework: não é um guia de como implementar, mas um espelho que reflete de volta o que precisa ser verdade sobre o sistema — e exige resposta antes de deixar o código começar.
+Em P17, o ganho do framework foi esse: preservar invariantes de estado, formato e fluxo com mais precisão. Para problemas com algoritmos fortes e regras operacionais distribuídas entre persistência, recomputação e output, essa diferença pesa mais do que a dificuldade do algoritmo em si.
 
 ---
 
