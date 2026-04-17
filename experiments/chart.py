@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SpecForge Comparative Chart — 16 projetos
+SpecForge comparative chart — 16 projects
 """
 import matplotlib
 matplotlib.use("Agg")
@@ -30,10 +30,10 @@ nf_all = [4, 4, 4, 3, 4,  4, 4, 3, 5, 5,  4, 5, 4, 5, 5,  4.2]
 tier_idx = ["M","C","S","C","C",  "M","C","M","C","S",  "C","S","M","M","S",  "H"]
 
 GROUPS = {
-    "S": {"idxs": [2,9,11,14],       "label": "Simples\n(P3,P10,P12,P15)"},
-    "M": {"idxs": [0,5,7,12,13],     "label": "Médio\n(P1,P6,P8,P13,P14)"},
-    "C": {"idxs": [1,3,4,6,8,10],    "label": "Complexo\n(P2,P4,P5,P7,P9,P11)"},
-    "H": {"idxs": [15],              "label": "Segurança\n(P16)"},
+    "S": {"idxs": [2,9,11,14],       "label": "Simple\n(P3,P10,P12,P15)"},
+    "M": {"idxs": [0,5,7,12,13],     "label": "Medium\n(P1,P6,P8,P13,P14)"},
+    "C": {"idxs": [1,3,4,6,8,10],    "label": "Complex\n(P2,P4,P5,P7,P9,P11)"},
+    "H": {"idxs": [15],              "label": "Security\n(P16)"},
 }
 
 # Pre-compute averages
@@ -42,19 +42,19 @@ for t, g in GROUPS.items():
     g["nf_avg"] = np.mean([nf_all[i] for i in g["idxs"]])
     g["gain"]   = (g["wf_avg"] - g["nf_avg"]) / g["nf_avg"] * 100
 
-# "Onde o spec protege" — non-overlapping problem categories (P1–P16)
+# "Where spec protects" — non-overlapping problem categories (P1–P16)
 # Crashes/bloqueios: WF=3, NF=3  (both equal — neither wins)
 # Bugs silenciosos:  WF=0, NF=4  (P4-eval, P8-falsy-zero, P11-missing-field, P16-env-bypass)
 # Vulns segurança:   WF=0, NF=1  (P4 eval)
 # Desvios conformidade: WF=0, NF=4 (P16: nested-dict, dead-code, env-timing, interoperability)
-protect_cats = ["Crashes /\nBloqueios", "Bugs\nSilenciosos", "Vulns\nSegurança", "Desvios\nConformidade"]
+protect_cats = ["Crashes /\nBlockers", "Silent\nBugs", "Security\nVulns", "Compliance\nDrift"]
 protect_wf   = [3, 0, 0, 0]
 protect_nf   = [3, 4, 1, 4]
 
 # ── Figure layout ─────────────────────────────────────────────────────────
 fig = plt.figure(figsize=(16, 10), facecolor=BG)
 fig.suptitle(
-    "SpecForge vs. Implementação Direta  ·  16 Projetos",
+    "SpecForge vs. Direct Implementation  ·  16 Projects",
     fontsize=16, fontweight="bold", y=0.98
 )
 
@@ -90,7 +90,7 @@ ax1.set_ylim(0, 6.4)
 ax1.set_yticks([0, 1, 2, 3, 4, 5])
 ax1.set_ylabel("Score (0–5)", fontsize=9)
 ax1.set_title(
-    "Score de qualidade final — barra esquerda = COM spec  |  barra direita = SEM spec  |  seta = spec ganhou",
+    "Final quality score — left bar = WITH spec  |  right bar = WITHOUT spec  |  arrow = spec wins",
     fontsize=10
 )
 ax1.axhline(5, color="gray", ls="--", alpha=0.25, lw=0.8, zorder=2)
@@ -104,17 +104,17 @@ for sep in [4.5, 9.5, 13.5]:
 # tier labels at top
 tier_labels_text = {4.5/2: "Médio", (4.5+9.5)/2: "Complexo",
                     (9.5+13.5)/2: "Simples", (13.5+15)/2: "Médio"}
-ax1.text(1.0,  6.15, "MÉDIO",    ha="center", fontsize=8, color="#555", style="italic")
-ax1.text(5.25, 6.15, "COMPLEXO", ha="center", fontsize=8, color="#555", style="italic")
-ax1.text(11.0, 6.15, "SIMPLES",  ha="center", fontsize=8, color="#555", style="italic")
-ax1.text(13.5, 6.15, "MÉD.",     ha="center", fontsize=8, color="#555", style="italic")
-ax1.text(15.0, 6.15, "SEG.",     ha="center", fontsize=8, color="#555", style="italic")
+ax1.text(1.0,  6.15, "MEDIUM",   ha="center", fontsize=8, color="#555", style="italic")
+ax1.text(5.25, 6.15, "COMPLEX",  ha="center", fontsize=8, color="#555", style="italic")
+ax1.text(11.0, 6.15, "SIMPLE",   ha="center", fontsize=8, color="#555", style="italic")
+ax1.text(13.5, 6.15, "MED.",     ha="center", fontsize=8, color="#555", style="italic")
+ax1.text(15.0, 6.15, "SEC.",     ha="center", fontsize=8, color="#555", style="italic")
 
 legend_handles = []
-for t, name in [("S","Simples"), ("M","Médio"), ("C","Complexo"), ("H","Segurança")]:
+for t, name in [("S","Simple"), ("M","Medium"), ("C","Complex"), ("H","Security")]:
     legend_handles += [
-        mpatches.Patch(color=TIER_WF[t], label=f"{name} COM"),
-        mpatches.Patch(color=TIER_NF[t], label=f"{name} SEM"),
+        mpatches.Patch(color=TIER_WF[t], label=f"{name} WITH"),
+        mpatches.Patch(color=TIER_NF[t], label=f"{name} WITHOUT"),
     ]
 ax1.legend(handles=legend_handles, ncol=4, fontsize=7.5,
            loc="lower right", framealpha=0.85)
@@ -131,8 +131,8 @@ colors = [TIER_WF[t]          for t in tier_order]
 xlbls  = [GROUPS[t]["label"]  for t in tier_order]
 
 bars2 = ax2.bar(xlbls, gains, color=colors, width=0.55, linewidth=0, zorder=3)
-ax2.set_ylabel("Ganho médio (%)", fontsize=9)
-ax2.set_title("% Ganho COM spec\npor Complexidade", fontsize=10)
+ax2.set_ylabel("Average gain (%)", fontsize=9)
+ax2.set_title("% Gain WITH spec\nby Complexity", fontsize=10)
 ax2.axhline(0, color="black", lw=0.8, zorder=2)
 ax2.yaxis.grid(True, color=GRID_CLR, zorder=1)
 ax2.set_axisbelow(True)
@@ -157,14 +157,14 @@ x3    = np.arange(4)
 bw3   = 0.34
 wf3   = [GROUPS[t]["wf_avg"] for t in tier_order]
 nf3   = [GROUPS[t]["nf_avg"] for t in tier_order]
-xlbl3 = ["Simples", "Médio", "Complexo", "Segurança"]
+xlbl3 = ["Simple", "Medium", "Complex", "Security"]
 
-b_wf = ax3.bar(x3 - bw3/2, wf3, bw3, label="COM spec", color=WF_DARK, linewidth=0, zorder=3)
-b_nf = ax3.bar(x3 + bw3/2, nf3, bw3, label="SEM spec", color=NF_DARK, linewidth=0, zorder=3)
+b_wf = ax3.bar(x3 - bw3/2, wf3, bw3, label="WITH spec", color=WF_DARK, linewidth=0, zorder=3)
+b_nf = ax3.bar(x3 + bw3/2, nf3, bw3, label="WITHOUT spec", color=NF_DARK, linewidth=0, zorder=3)
 ax3.set_xticks(x3)
 ax3.set_xticklabels(xlbl3, fontsize=9)
-ax3.set_ylabel("Score médio (0–5)", fontsize=9)
-ax3.set_title("Score Médio\npor Categoria", fontsize=10)
+ax3.set_ylabel("Average score (0–5)", fontsize=9)
+ax3.set_title("Average Score\nby Category", fontsize=10)
 ax3.set_ylim(0, 6.2)
 ax3.axhline(5, color="gray", ls="--", alpha=0.25, lw=0.8, zorder=2)
 ax3.yaxis.grid(True, color=GRID_CLR, zorder=1)
@@ -176,19 +176,19 @@ for i, (w, n) in enumerate(zip(wf3, nf3)):
     ax3.text(i + bw3/2, n + 0.07, f"{n:.2f}", ha="center", va="bottom", fontsize=8.5, color=NF_DARK, fontweight="bold")
 
 # ─────────────────────────────────────────────────────────────────────────
-# Chart 4 — bottom right: "onde o spec protege"
+# Chart 4 — bottom right: "where spec protects"
 # ─────────────────────────────────────────────────────────────────────────
 ax4 = fig.add_subplot(gs[1, 2])
 ax4.set_facecolor(BG)
 
 x4  = np.arange(len(protect_cats))
 bw4 = 0.34
-b4w = ax4.bar(x4 - bw4/2, protect_wf, bw4, label="COM spec", color=WF_DARK, linewidth=0, zorder=3)
-b4n = ax4.bar(x4 + bw4/2, protect_nf, bw4, label="SEM spec", color=NF_DARK, linewidth=0, zorder=3)
+b4w = ax4.bar(x4 - bw4/2, protect_wf, bw4, label="WITH spec", color=WF_DARK, linewidth=0, zorder=3)
+b4n = ax4.bar(x4 + bw4/2, protect_nf, bw4, label="WITHOUT spec", color=NF_DARK, linewidth=0, zorder=3)
 ax4.set_xticks(x4)
 ax4.set_xticklabels(protect_cats, fontsize=8.5)
-ax4.set_ylabel("Ocorrências (P1–P16)", fontsize=9)
-ax4.set_title("Onde o Spec Protege\n(P1–P16)", fontsize=10)
+ax4.set_ylabel("Occurrences (P1–P16)", fontsize=9)
+ax4.set_title("Where Spec Protects\n(P1–P16)", fontsize=10)
 ax4.yaxis.grid(True, color=GRID_CLR, zorder=1)
 ax4.set_axisbelow(True)
 ax4.legend(fontsize=9)
