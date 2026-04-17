@@ -12,9 +12,9 @@ ForgeMySpec compiles natural-language requirements into a structured artifact bu
 
 ![ForgeMySpec comparative results](experiments/forgemyspec_chart.png)
 
-Across 17 projects — task managers, REST APIs, cryptographic vaults, graph schedulers — both approaches got the algorithms right. The spec-first version made clarity a first-class step in the engineering process — something that happens before the code, not as a byproduct of it.
+Seventeen projects, same requirements given to both approaches. The algorithms came out right in both cases. The gap appeared elsewhere — in the small decisions every implementation makes but rarely records: whether a derived field belongs in storage, in what order operations must commit, which status values are valid and which are inferred.
 
-Every implementation has to answer questions like whether a derived field should be persisted, in what order operations must run, what a particular edge case means. Without a spec, those answers live inside the code — made once, in the moment, never recorded.
+A direct implementation answers those questions as they arise. A spec answers them before the first file exists, and keeps a record.
 
 | | With spec | Without |
 |---|:---:|:---:|
@@ -24,9 +24,7 @@ Every implementation has to answer questions like whether a derived field should
 | Silent quality issues | 4 | 9 |
 | Projects with zero issues | 10 / 17 | 6 / 17 |
 
-The threshold where a spec earns its cost is roughly three interacting business rules. Below that, both approaches converge and the overhead is real. Above it, the spec pays for itself — not by teaching the agent how to implement, but by forcing every implicit assumption into a named, visible contract before the first file is written.
-
-The agent without a framework did not fail from ignorance. It failed from never being required to commit.
+The benefit concentrates in projects with three or more interacting constraints. Below that, both approaches converge and the spec overhead is real. Above it, clarity becomes a step in the engineering process — produced before implementation begins, with a record that survives the session.
 
 Full data: [`experiments/COMPARATIVE_REPORT.md`](experiments/COMPARATIVE_REPORT.md)
 
