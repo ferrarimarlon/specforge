@@ -12,9 +12,9 @@ ForgeMySpec compiles natural-language requirements into a structured artifact bu
 
 ![ForgeMySpec comparative results](experiments/forgemyspec_chart.png)
 
-Across 17 projects — task managers, REST APIs, cryptographic vaults, graph schedulers — both approaches got the algorithms right. The spec-first version was not more clever. It was more honest about what had been decided.
+Across 17 projects — task managers, REST APIs, cryptographic vaults, graph schedulers — both approaches got the algorithms right. The spec-first version made clarity a first-class step in the engineering process — something that happens before the code, not as a byproduct of it.
 
-The failures in the without-framework version were not in the hard logic. They were in the places a competent implementer would not think to write down: whether a derived field should ever be persisted, in what order operations must run, what "done" means for a particular edge case. Those decisions still happened — they just happened inside the implementation, silently, with no record.
+Every implementation has to answer questions like whether a derived field should be persisted, in what order operations must run, what a particular edge case means. Without a spec, those answers live inside the code — made once, in the moment, never recorded.
 
 | | With spec | Without |
 |---|:---:|:---:|
