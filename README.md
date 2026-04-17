@@ -12,9 +12,9 @@ ForgeMySpec compiles natural-language requirements into a structured artifact bu
 
 ![ForgeMySpec comparative results](experiments/forgemyspec_chart.png)
 
-Seventeen projects, same requirements given to both approaches. The algorithms came out right in both cases. The gap appeared elsewhere — in the small decisions every implementation makes but rarely records: whether a derived field belongs in storage, in what order operations must commit, which status values are valid and which are inferred.
+Clarity of requirements and explicit implementation contracts are the basis of software engineering as a discipline, as opposed to software writing. Code that carries no record of its own constraints forces the next person who touches it to reconstruct those constraints from behavior, tests, and context. The spec produces that record at the moment the decisions are being made, when the cost is lowest and the accuracy is highest.
 
-A direct implementation answers those questions as they arise. A spec answers them before the first file exists, and keeps a record.
+In demonstration with 17 projects, same requirements given to both approaches — using ForgeMySpec and direct Claude Code implementation. The solutions came out right in both cases. But the on-the-fly implementations showed coding issues, hidden gaps and even security issues during the process. The result was a lack of quality compared to the ForgeMySpec versions.
 
 | | With spec | Without |
 |---|:---:|:---:|
@@ -24,13 +24,9 @@ A direct implementation answers those questions as they arise. A spec answers th
 | Silent quality issues | 4 | 9 |
 | Projects with zero issues | 10 / 17 | 6 / 17 |
 
-Some of the differences were functional. A CSV analytics filter implemented without a spec used `eval()` to parse user expressions — a code injection vulnerability that passed all functional tests. A time tracker checked session activity by the truthiness of a duration value, making zero-second sessions appear active. An invoice validator accepted items with no `description` field because the requirement listed it but no spec enumerated mandatory fields per item.
+Security vulnerabilities in the without-framework versions passed all functional tests — the code worked, the feature shipped, the risk stayed invisible. Structural deviations accumulated silently: fields stored when they should be derived, flows skipped when they should be mandatory, output formats that diverged from what the requirement implied but never stated. None of these required the implementation to fail. They required it to be wrong in ways that only matter later.
 
-Others were structural. In a job scheduler with ten interacting requirements, both versions implemented cycle detection, topological sort, and recursive failure propagation correctly. The without-framework version still persisted a derived status that the spec had declared must never be stored. The question of whether to persist it was never raised.
-
-This is the older argument in software engineering: clarity of requirements and explicit implementation contracts are not overhead added on top of the work — they are part of the work. Code that carries no record of its own constraints is code that the next engineer has to reverse-engineer before touching. The spec is that record, produced when the decisions are being made rather than reconstructed afterward from the code that resulted from them.
-
-The benefit concentrates in projects with three or more interacting constraints. Below that, both approaches converge and the spec overhead is real. Above it, the spec pays for itself twice — once during implementation and once when someone has to understand, extend, or debug what was built.
+Despite the higher results, the framework is not suitable for every problem. As demonstrated in the report of the simulations, ForgeMySpec tends to work better under complex scenarios — multiple requisites, interacting rules, security demands — than closed, simpler ones. The experiments showed that above 3 interacting constraints the framework becomes the better choice, evidencing its suitability for harder, domain-specific requirements.
 
 Full data: [`experiments/COMPARATIVE_REPORT.md`](experiments/COMPARATIVE_REPORT.md)
 
