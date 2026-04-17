@@ -12,9 +12,11 @@ ForgeMySpec compiles natural-language requirements into a structured artifact bu
 
 ![ForgeMySpec comparative results](experiments/forgemyspec_chart.png)
 
-Clarity of requirements and explicit implementation contracts are the basis of software engineering as a discipline, as opposed to software writing. Code that carries no record of its own constraints forces the next person who touches it to reconstruct those constraints from behavior, tests, and context. The spec produces that record at the moment the decisions are being made, when the cost is lowest and the accuracy is highest.
+![Average Score by Category](experiments/average_score_by_category.png)
 
-In demonstration with 17 projects, same requirements given to both approaches — using ForgeMySpec and direct Claude Code implementation. The solutions came out right in both cases. But the on-the-fly implementations showed coding issues, hidden gaps and even security issues during the process. The result was a lack of quality compared to the ForgeMySpec versions.
+ForgeMySpec matters most when the task stops being trivial. Once a requirement has interacting rules, validation paths, derived fields, security constraints, or multiple edge cases, “just write the code” starts to look correct long before it is actually safe or complete. ForgeMySpec turns that ambiguity into an executable contract first, so the agent implements against a stable target instead of improvising under context pressure.
+
+Across 17 benchmark projects, both approaches usually produced something that looked functional. The difference showed up in the parts that are expensive to discover later: silent bugs, structural drift, and security mistakes that do not necessarily break the happy path. ForgeMySpec consistently held quality higher, and the gap widened as the scenarios became more complex.
 
 | | With spec | Without |
 |---|:---:|:---:|
@@ -24,9 +26,11 @@ In demonstration with 17 projects, same requirements given to both approaches �
 | Silent quality issues | 4 | 9 |
 | Projects with zero issues | 10 / 17 | 6 / 17 |
 
-Security vulnerabilities in the without-framework versions passed all functional tests — the code worked, the feature shipped, the risk stayed invisible. Structural deviations accumulated silently: fields stored when they should be derived, flows skipped when they should be mandatory, output formats that diverged from what the requirement implied but never stated. None of these required the implementation to fail. They required it to be wrong in ways that only matter later.
+**The more domain pressure you add, the more ForgeMySpec pulls away.** In simple, closed tasks, direct implementation can be enough. In medium and complex projects, the spec preserves intent while the agent navigates multiple constraints at once. Hidden drift usually starts there, and ForgeMySpec keeps the implementation anchored to the requirement.
 
-Despite the higher results, the framework is not suitable for every problem. As demonstrated in the report of the simulations, ForgeMySpec tends to work better under complex scenarios — multiple requisites, interacting rules, security demands — than closed, simpler ones. The experiments showed that above 3 interacting constraints the framework becomes the better choice, evidencing its suitability for harder, domain-specific requirements.
+That advantage matters in the places teams actually pay for mistakes: approval flows, invariants, conditional rules, security boundaries, and business logic that cannot be reconstructed reliably from the final code alone. ForgeMySpec keeps those constraints explicit from the start and gives the agent a tighter target to execute against.
+
+For tiny one-off scripts, the extra structure may not matter. For work with multiple interacting constraints and real failure modes, ForgeMySpec gives the agent a measurable advantage.
 
 Full data: [`experiments/COMPARATIVE_REPORT.md`](experiments/COMPARATIVE_REPORT.md)
 
