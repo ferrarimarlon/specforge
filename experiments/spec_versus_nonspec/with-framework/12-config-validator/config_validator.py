@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Config Validator CLI — WITH SpecForge framework.
+"""Config Validator CLI — WITH ForgeMySpec framework.
 Spec: spec.yaml v0.1
 Rules: dot-notation nested keys, all validators independent, all errors reported.
 """

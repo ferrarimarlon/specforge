@@ -23,19 +23,19 @@ from .nlp_policy import CompilerPolicy, PolicyConfigError, load_compiler_policy
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="specforge",
+        prog="forgemyspec",
         description="Simple spec builder: prompt in, validated skill bundle out.",
     )
     parser.add_argument(
         "task",
         nargs="*",
-        help="Optional free-form task text (e.g., specforge \"build a parser cli\").",
+        help="Optional free-form task text (e.g., forgemyspec \"build a parser cli\").",
     )
     parser.add_argument("--prompt", help="Free-form prompt.")
     parser.add_argument("--from-file", help="Input prompt file.")
     parser.add_argument(
         "--output-dir",
-        default="specforge-bundle",
+        default="forgemyspec-bundle",
         help="Output directory for generated spec and Claude bundle (artifacts are separate from .claude/skills/).",
     )
     return parser

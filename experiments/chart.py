@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SpecForge comparative chart — 16 projects
+ForgeMySpec comparative chart — 16 projects
 """
 import matplotlib
 matplotlib.use("Agg")
@@ -54,7 +54,7 @@ protect_nf   = [3, 4, 1, 4]
 # ── Figure layout ─────────────────────────────────────────────────────────
 fig = plt.figure(figsize=(16, 10), facecolor=BG)
 fig.suptitle(
-    "SpecForge vs. Direct Implementation  ·  16 Projects",
+    "ForgeMySpec vs. Direct Implementation  ·  16 Projects",
     fontsize=16, fontweight="bold", y=0.98
 )
 
@@ -201,6 +201,6 @@ for i, (w, n) in enumerate(zip(protect_wf, protect_nf)):
              color=NF_DARK, fontweight="bold")
 
 # ── Save ──────────────────────────────────────────────────────────────────
-out = "/Users/marlonferrari/Desktop/demo/experiments/specforge_chart.png"
+out = "/Users/marlonferrari/Desktop/demo/experiments/forgemyspec_chart.png"
 plt.savefig(out, dpi=160, bbox_inches="tight", facecolor=fig.get_facecolor())
 print(f"Saved → {out}")

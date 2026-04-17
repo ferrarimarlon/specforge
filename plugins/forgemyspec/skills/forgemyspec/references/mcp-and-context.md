@@ -1,6 +1,6 @@
 # MCP and additional context
 
-Inside Claude Code, SpecForge benefits from **grounding** the requirement before locking a spec. MCP servers expose repositories, trackers, wikis, or internal APIs—use them **before** fixing constraints and success criteria.
+Inside Claude Code, ForgeMySpec benefits from **grounding** the requirement before locking a spec. MCP servers expose repositories, trackers, wikis, or internal APIs—use them **before** fixing constraints and success criteria.
 
 ## Principles
 

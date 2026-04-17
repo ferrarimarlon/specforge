@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Invoice Generator CLI — WITH SpecForge framework.
+"""Invoice Generator CLI — WITH ForgeMySpec framework.
 Spec: spec.yaml v0.1
 Rules: discount before tax, round at each step, report ALL validation errors.
 """

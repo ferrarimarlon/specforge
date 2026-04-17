@@ -62,7 +62,7 @@ required_evidence:
   - "rounding consistent across all steps"
 metadata:
   source_prompt: "Invoice generator with validation and financial computation"
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

@@ -1,20 +1,20 @@
-# SpecForge
+# ForgeMySpec
 
-![SpecForge comparative results](experiments/specforge_chart.png)
+![ForgeMySpec comparative results](experiments/forgemyspec_chart.png)
 
-[![Tests](https://github.com/ferrarimarlon/specforge/actions/workflows/tests.yml/badge.svg)](https://github.com/ferrarimarlon/specforge/actions/workflows/tests.yml)
+[![Tests](https://github.com/ferrarimarlon/forgemyspec/actions/workflows/tests.yml/badge.svg)](https://github.com/ferrarimarlon/forgemyspec/actions/workflows/tests.yml)
 
 **Turn a human request into a machine-executable contract — before the first line of code is written.**
 
-SpecForge compiles natural-language requirements into a structured artifact bundle that gives a coding agent a stable, auditable contract to work from. The bundle is a **runtime-ready execution harness for Claude**: concrete files that drive implementation and verification alongside the agent.
+ForgeMySpec compiles natural-language requirements into a structured artifact bundle that gives a coding agent a stable, auditable contract to work from. The bundle is a **runtime-ready execution harness for Claude**: concrete files that drive implementation and verification alongside the agent.
 
-![SpecForge v0.1.0 interactive CLI](docs/cli-demo.png)
+![ForgeMySpec v0.1.0 interactive CLI](docs/cli-demo.png)
 
 ---
 
 ## How it works
 
-You write a **prompt**. SpecForge runs a compile pipeline: LLM draft, normalization into a `Spec` model, **lint** against policy, then **packaging** into files the agent can re-read. The repository also ships **Claude Code skills** under `.claude/skills/`, so the same workflow can run **inside** Claude Code (with MCP context when available), not only via the terminal CLI.
+You write a **prompt**. ForgeMySpec runs a compile pipeline: LLM draft, normalization into a `Spec` model, **lint** against policy, then **packaging** into files the agent can re-read. The repository also ships **Claude Code skills** under `.claude/skills/`, so the same workflow can run **inside** Claude Code (with MCP context when available), not only via the terminal CLI.
 
 ```text
                          +------------------+
@@ -24,7 +24,7 @@ You write a **prompt**. SpecForge runs a compile pipeline: LLM draft, normalizat
                                   |
                                   v
               +-------------------------------------------+
-              |  SpecForge: draft -> normalize -> lint    |
+              |  ForgeMySpec: draft -> normalize -> lint    |
               |            -> pass gate -> package        |
               +--------------------+----------------------+
                                    |
@@ -72,7 +72,7 @@ The **effective context window** is shared across all of that. So the explicit t
 
 From there, missing details get silently filled by pattern-matching. “Helpful” additions slip in because no hard execution contract exists. Completion gets reported in broad language even when acceptance criteria remain fuzzy.
 
-**SpecForge addresses this** by compiling the request into a **compact contract before implementation churn**, **materialized as files** the agent can re-read as the Claude Code context stack grows.
+**ForgeMySpec addresses this** by compiling the request into a **compact contract before implementation churn**, **materialized as files** the agent can re-read as the Claude Code context stack grows.
 
 Architecturally, each stage targets a specific failure mode:
 
@@ -87,7 +87,7 @@ Together, that turns the “small slice” of user intent into a **durable handl
 
 ---
 
-## What SpecForge Produces
+## What ForgeMySpec Produces
 
 Each compilation run outputs a bundle of five artifacts:
 
@@ -107,29 +107,29 @@ These files give the agent a stable anchor it can revisit throughout a long sess
 
 | Flavor | What It Does |
 |---|---|
-| **Python CLI** (`specforge`) | Runs locally with your API key. Interactive or direct-prompt mode. Writes the artifact bundle to your chosen output directory (default: `specforge-bundle`). |
-| **Claude Code** | **Skills:** `.claude/skills/` (symlinks into `plugins/specforge/skills/`) expose `/specforge` and `/specforge-implement`. **Default agent:** `.claude/settings.json` sets `defaultAgent` to **`specforge-default`**, whose definition lives in `plugins/specforge/agents/specforge-default.md` (symlinked under `.claude/agents/`). That agent preloads those skills and routes spec-first work—no marketplace plugin required. |
+| **Python CLI** (`forgemyspec`) | Runs locally with your API key. Interactive or direct-prompt mode. Writes the artifact bundle to your chosen output directory (default: `forgemyspec-bundle`). |
+| **Claude Code** | **Skills:** `.claude/skills/` (symlinks into `plugins/forgemyspec/skills/`) expose `/forgemyspec` and `/forgemyspec-implement`. **Default agent:** `.claude/settings.json` sets `defaultAgent` to **`forgemyspec-default`**, whose definition lives in `plugins/forgemyspec/agents/forgemyspec-default.md` (symlinked under `.claude/agents/`). That agent preloads those skills and routes spec-first work—no marketplace plugin required. |
 
 **Slash commands (skills):**
 
-- **`/specforge`** — Compile a requirement into `spec.yaml` and the full artifact bundle. Gathers MCP context first.
-- **`/specforge-implement`** — Execute implementation when a bundle already exists. No re-compilation.
+- **`/forgemyspec`** — Compile a requirement into `spec.yaml` and the full artifact bundle. Gathers MCP context first.
+- **`/forgemyspec-implement`** — Execute implementation when a bundle already exists. No re-compilation.
 
 ---
 
 ## Interactive CLI
 
-Write the task. Choose an output folder. SpecForge generates the bundle. The status panel shows provider, workspace, pipeline stage, and available slash commands.
+Write the task. Choose an output folder. ForgeMySpec generates the bundle. The status panel shows provider, workspace, pipeline stage, and available slash commands.
 
 ```bash
 # Interactive mode
-.venv/bin/specforge
+.venv/bin/forgemyspec
 
 # Direct prompt
-.venv/bin/specforge "build a deterministic SQL expression analyzer CLI"
+.venv/bin/forgemyspec "build a deterministic SQL expression analyzer CLI"
 
 # From file
-.venv/bin/specforge --from-file prompt.txt
+.venv/bin/forgemyspec --from-file prompt.txt
 ```
 
 ---
@@ -140,18 +140,18 @@ This repository is set up for **Claude Code** out of the box: open the project f
 
 | Already in the repo | What it does |
 | --- | --- |
-| `.claude/settings.json` | Sets **`defaultAgent`** to **`specforge-default`**, so new sessions use the SpecForge agent by default. |
-| `.claude/agents/specforge-default.md` | Agent definition (source: `plugins/specforge/agents/`). Preloads the `specforge` and `specforge-implement` skills. |
-| `.claude/skills/` | Symlinks to `plugins/specforge/skills/` — **`/specforge`** and **`/specforge-implement`** are available as slash commands. |
+| `.claude/settings.json` | Sets **`defaultAgent`** to **`forgemyspec-default`**, so new sessions use the ForgeMySpec agent by default. |
+| `.claude/agents/forgemyspec-default.md` | Agent definition (source: `plugins/forgemyspec/agents/`). Preloads the `forgemyspec` and `forgemyspec-implement` skills. |
+| `.claude/skills/` | Symlinks to `plugins/forgemyspec/skills/` — **`/forgemyspec`** and **`/forgemyspec-implement`** are available as slash commands. |
 | Root `CLAUDE.md` | Project memory the agent reads every turn (spec-first rules and conventions). |
 
 **Typical flow**
 
-1. **New feature or ambiguous request** — Run **`/specforge`** (or ask in natural language; the default agent should route to compiling a bundle first). Point the skill at your requirement; it can use MCP tools for repo or ticket context if you have them connected. The bundle lands under a dedicated directory (e.g. `./specforge-bundle/`), not inside `.claude/skills/`.
-2. **You already have a validated `spec.yaml` for the task** — Run **`/specforge-implement`** and follow the bundle’s checklist and commands.
+1. **New feature or ambiguous request** — Run **`/forgemyspec`** (or ask in natural language; the default agent should route to compiling a bundle first). Point the skill at your requirement; it can use MCP tools for repo or ticket context if you have them connected. The bundle lands under a dedicated directory (e.g. `./forgemyspec-bundle/`), not inside `.claude/skills/`.
+2. **You already have a validated `spec.yaml` for the task** — Run **`/forgemyspec-implement`** and follow the bundle’s checklist and commands.
 3. **Keep memory honest** — Put durable decisions in the **bundle’s** `CLAUDE.md` and the root **`CLAUDE.md`** only when they are project-wide; avoid using skills output directories as scratch pads.
 
-If your Claude Code UI lets you pick an agent, choose **`specforge-default`**; if you rely on defaults only, this repo already selects it for you.
+If your Claude Code UI lets you pick an agent, choose **`forgemyspec-default`**; if you rely on defaults only, this repo already selects it for you.
 
 ---
 
@@ -275,8 +275,8 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 
 An optional policy file controls how strict compilation and the pass gate should be.
 
-**Default path:** `./.specforge-policy.yaml`  
-**Override:** `export SPECFORGE_POLICY=/path/to/policy.yaml`
+**Default path:** `./.forgemyspec-policy.yaml`  
+**Override:** `export FORGEMYSPEC_POLICY=/path/to/policy.yaml`
 
 ```yaml
 min_items:
@@ -307,7 +307,7 @@ scope_violation_penalty: 25
 ## Architecture
 
 ```
-src/opsspec/
+src/forgemyspec/
 ├── cli.py           ← user flow and interactive session
 ├── generator.py     ← compiles draft JSON into internal Spec model
 ├── linting.py       ← deterministic quality checks
@@ -316,8 +316,8 @@ src/opsspec/
 └── nlp_policy.py    ← loads policy and scoring configuration
 
 .claude/skills/
-├── specforge/           ← MCP-aware spec compilation skill
-└── specforge-implement/ ← implementation-only skill for existing bundles
+├── forgemyspec/           ← MCP-aware spec compilation skill
+└── forgemyspec-implement/ ← implementation-only skill for existing bundles
 
 examples/
 ├── sample-bundle/   ← reference output: parser CLI
@@ -328,7 +328,7 @@ examples/
 
 ## Case Study: Building a Bare-Metal OS
 
-The `examples/mini-os/` directory is a complete end-to-end demonstration. SpecForge compiled a full spec from a **short seed phrase**, and `/implement-from-spec` built a bootable x86 disk image.
+The `examples/mini-os/` directory is a complete end-to-end demonstration. ForgeMySpec compiled a full spec from a **short seed phrase**, and `/implement-from-spec` built a bootable x86 disk image.
 
 ![MiniOS v0.1 running in QEMU — boot summary, memory map, and GDT](docs/minios-qemu.png)
 
@@ -352,7 +352,7 @@ Seed plus metadata together are the complete, replayable input stored on disk.
 
 ### What the spec compiled
 
-Running `/specforge` with that prompt text produced the full bundle in one pass:
+Running `/forgemyspec` with that prompt text produced the full bundle in one pass:
 
 **Objective** — 512-byte BIOS bootloader + freestanding C kernel → VGA text output → boots in QEMU from a raw disk image. No external libraries. No runtime.
 

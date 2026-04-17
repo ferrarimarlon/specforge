@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Data Deduplicator CLI — WITH SpecForge framework.
+"""Data Deduplicator CLI — WITH ForgeMySpec framework.
 Spec: spec.yaml v0.1
 Rules: composite keys, first/last/error strategies, --report flag.
 """

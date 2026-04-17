@@ -104,7 +104,7 @@ metadata:
     files into subdirectories by extension. Two modes: --watch and --once.
     Log moves to organizer.log. Skip files already in subdirs and hidden files.
     Single file organizer.py, stdlib only.
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

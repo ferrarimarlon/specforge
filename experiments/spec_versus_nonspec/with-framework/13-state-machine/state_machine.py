@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""State Machine CLI — WITH SpecForge framework.
+"""State Machine CLI — WITH ForgeMySpec framework.
 Spec: spec.yaml v0.1
 Rules: BFS unreachable detection, no eval() for guards, history tracking.
 """

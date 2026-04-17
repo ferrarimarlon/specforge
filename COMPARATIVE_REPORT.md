@@ -1,8 +1,8 @@
-# Relatório Comparativo: SpecForge vs. Desenvolvimento Direto
+# Relatório Comparativo: ForgeMySpec vs. Desenvolvimento Direto
 
 **Data:** 2026-04-16  
 **Projetos:** 5 de média complexidade  
-**Abordagens:** COM framework (SpecForge) × SEM framework (implementação direta)  
+**Abordagens:** COM framework (ForgeMySpec) × SEM framework (implementação direta)  
 **Ambiente:** Python 3.9.6 / macOS
 
 ---
@@ -242,7 +242,7 @@ Inconsistência output    0    1
 
 ## 9. Veredicto
 
-**COM SpecForge venceu em:**
+**COM ForgeMySpec venceu em:**
 - Qualidade final do artefato (+31% na escala 0–5)
 - Zero vulnerabilidades de segurança
 - Zero problemas silenciosos de qualidade
@@ -258,7 +258,7 @@ Inconsistência output    0    1
 - Total de problemas que causaram crash durante validação (3 vs 2 — diferença marginal)
 - Projetos de baixa complexidade (P3): ambas as abordagens foram igualmente eficientes
 
-**Recomendação:** SpecForge é mais eficiente para projetos de complexidade média-alta (P2, P5) com múltiplas regras de negócio, múltiplos edge cases, ou requisitos de segurança. Para projetos muito simples (P3, script de automação sem estado), o overhead do framework supera o benefício.
+**Recomendação:** ForgeMySpec é mais eficiente para projetos de complexidade média-alta (P2, P5) com múltiplas regras de negócio, múltiplos edge cases, ou requisitos de segurança. Para projetos muito simples (P3, script de automação sem estado), o overhead do framework supera o benefício.
 
 ---
 
@@ -545,7 +545,7 @@ O maior valor do framework nos projetos 6–15 não foi na arquitetura (ambas as
 
 ## R2.8. Veredicto Consolidado (P1–P15)
 
-**COM SpecForge venceu em:**
+**COM ForgeMySpec venceu em:**
 - Completude média: 4.9/5 (rodadas 1+2) vs 4.1/5 SEM framework
 - Zero vulnerabilidades de segurança (vs 1 SEM framework — `eval()` no P4)
 - Zero bugs de lógica "silenciosos" que passariam em review casual: 0 (vs 3 SEM framework: P8-NF falsy zero, P11-NF missing field, P4-NF eval)
@@ -563,7 +563,7 @@ Projetos médios (P1, P6, P8, P13):    COM framework +10–15% qualidade
 Projetos complexos (P2, P4, P5, P11): COM framework +25–40% qualidade, 0 vuln vs 1+ vuln
 ```
 
-**Recomendação final:** O threshold de benefício do SpecForge é ~3 regras de negócio com interação entre si. Abaixo disso, o overhead do spec não compensa. Acima disso (especialmente com requisitos de segurança), o spec previne classes inteiras de bugs.
+**Recomendação final:** O threshold de benefício do ForgeMySpec é ~3 regras de negócio com interação entre si. Abaixo disso, o overhead do spec não compensa. Acima disso (especialmente com requisitos de segurança), o spec previne classes inteiras de bugs.
 
 ---
 
@@ -739,7 +739,7 @@ Isso replica o padrão observado em P12 (bool/int edge case): **quando o impleme
 
 ## R3.7. Veredicto Final (P1–P16)
 
-**COM SpecForge venceu em:**
+**COM ForgeMySpec venceu em:**
 - Completude média: 4.85/5 vs 4.1/5 (+18%)
 - Zero vulnerabilidades de segurança (vs 1 — `eval()` P4)
 - Zero desvios estruturais (vs 4 — NF divergiu da estrutura especificada 4 vezes)
@@ -761,4 +761,4 @@ Projetos segurança (P16):                WF +14%, 0 vs 3 desvios de conformidad
 ```
 
 **Recomendação final revisada:**  
-O threshold de benefício do SpecForge permanece em ~3 regras de negócio com interação entre si. Em projetos com **requisitos de segurança** (criptografia, controle de acesso, auditoria), o benefício é estrutural — o spec captura invariantes que o implementador pode conhecer mas não documentaria explicitamente, prevenindo desvios de conformidade que passam em testes funcionais mas falham em revisão de segurança.
+O threshold de benefício do ForgeMySpec permanece em ~3 regras de negócio com interação entre si. Em projetos com **requisitos de segurança** (criptografia, controle de acesso, auditoria), o benefício é estrutural — o spec captura invariantes que o implementador pode conhecer mas não documentaria explicitamente, prevenindo desvios de conformidade que passam em testes funcionais mas falham em revisão de segurança.

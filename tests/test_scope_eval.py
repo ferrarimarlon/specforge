@@ -4,7 +4,7 @@ import unittest
 
 from support import make_valid_spec_data
 
-from opsspec.scope_eval import evaluate_scope_drift
+from forgemyspec.scope_eval import evaluate_scope_drift
 
 
 class ScopeEvalTests(unittest.TestCase):

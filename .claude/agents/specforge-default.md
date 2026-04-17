@@ -1,1 +1,0 @@
-../../plugins/specforge/agents/specforge-default.md

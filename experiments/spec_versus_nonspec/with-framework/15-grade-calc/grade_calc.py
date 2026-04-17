@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Grade Calculator CLI — WITH SpecForge framework.
+"""Grade Calculator CLI — WITH ForgeMySpec framework.
 Spec: spec.yaml v0.1
 Rules: weight normalization, >= boundaries, GPA-based class stats.
 """

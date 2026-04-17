@@ -62,7 +62,7 @@ required_evidence:
   - "composite key deduplication works"
 metadata:
   source_prompt: "CSV deduplicator with first/last/error strategies and composite keys"
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

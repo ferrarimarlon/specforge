@@ -58,7 +58,7 @@ required_evidence:
   - "settle produces correct number of transactions"
 metadata:
   source_prompt: "CLI expense splitter with greedy settlement algorithm"
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

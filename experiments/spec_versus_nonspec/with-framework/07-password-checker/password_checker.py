@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Password Policy Checker CLI — WITH SpecForge framework.
+"""Password Policy Checker CLI — WITH ForgeMySpec framework.
 Spec: spec.yaml v0.1
 Rules: all checks independent, Shannon entropy, generate with retry.
 """

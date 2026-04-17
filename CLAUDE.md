@@ -2,12 +2,12 @@
 
 ## Framework
 
-This project uses **SpecForge** as its default development framework. All implementation work must follow the spec-first workflow.
+This project uses **ForgeMySpec** as its default development framework. All implementation work must follow the spec-first workflow.
 
 ## Default Agent
 
-The `specforge-default` agent (`plugins/specforge/agents/specforge-default.md`, symlinked under `.claude/agents/`) is the entry point for all development tasks. It:
-- Preloads the `specforge` and `specforge-implement` skills
+The `forgemyspec-default` agent (`plugins/forgemyspec/agents/forgemyspec-default.md`, symlinked under `.claude/agents/`) is the entry point for all development tasks. It:
+- Preloads the `forgemyspec` and `forgemyspec-implement` skills
 - Enforces spec compilation before any code is written
 - Routes to the correct skill based on whether a `spec.yaml` already exists
 
@@ -17,8 +17,8 @@ The `specforge-default` agent (`plugins/specforge/agents/specforge-default.md`, 
 
 | Situation | Action |
 |---|---|
-| No spec exists for the task | Run `/specforge` first |
-| Spec exists | Run `/specforge-implement` |
+| No spec exists for the task | Run `/forgemyspec` first |
+| Spec exists | Run `/forgemyspec-implement` |
 | Spec is stale or ambiguous | Ask user to update `spec.yaml` before proceeding |
 
 ## Project Layout
@@ -26,22 +26,22 @@ The `specforge-default` agent (`plugins/specforge/agents/specforge-default.md`, 
 ```
 .
 ├── CLAUDE.md                          ← you are here (project memory)
-├── plugins/specforge/                 ← canonical skills + default agent source (symlinked into .claude/)
-│   ├── agents/specforge-default.md
-│   └── skills/{specforge,specforge-implement}/
+├── plugins/forgemyspec/                 ← canonical skills + default agent source (symlinked into .claude/)
+│   ├── agents/forgemyspec-default.md
+│   └── skills/{forgemyspec,forgemyspec-implement}/
 ├── .claude/
-│   ├── settings.json                  ← `defaultAgent`: specforge-default
-│   ├── agents/specforge-default.md    ← symlink → plugins/specforge/agents/…
-│   └── skills/                        ← symlinks → plugins/specforge/skills/…
-├── examples/                          ← example SpecForge bundles
+│   ├── settings.json                  ← `defaultAgent`: forgemyspec-default
+│   ├── agents/forgemyspec-default.md    ← symlink → plugins/forgemyspec/agents/…
+│   └── skills/                        ← symlinks → plugins/forgemyspec/skills/…
+├── examples/                          ← example ForgeMySpec bundles
 │   ├── sample-bundle/                 ← parser CLI example
 │   └── mini-os/                       ← minimal x86 OS example
-└── src/                               ← SpecForge Python package
+└── src/                               ← ForgeMySpec Python package
 ```
 
 ## Conventions
 
-- Generated bundles go in `./specforge-bundle/` or a task-named subdirectory — never directly in `.claude/skills/`.
+- Generated bundles go in `./forgemyspec-bundle/` or a task-named subdirectory — never directly in `.claude/skills/`.
 - `CLAUDE.md` files (this one and those inside bundles) store only stable decisions and known pitfalls — not transient logs or scratch notes.
 - Scope drift is checked against `evals/scope_drift_cases.yaml` in each bundle.
 

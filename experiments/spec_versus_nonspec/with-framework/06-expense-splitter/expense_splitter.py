@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Expense Splitter CLI — WITH SpecForge framework.
+"""Expense Splitter CLI — WITH ForgeMySpec framework.
 Spec: spec.yaml v0.1
 Rules: greedy settlement, fractional cents rounded to 2dp.
 """

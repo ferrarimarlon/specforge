@@ -60,7 +60,7 @@ required_evidence:
   - "Feb 30 is never produced"
 metadata:
   source_prompt: "Cron expression parser with next-time computation"
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

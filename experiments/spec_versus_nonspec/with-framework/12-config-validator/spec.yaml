@@ -64,7 +64,7 @@ required_evidence:
   - "all errors reported before exit 1"
 metadata:
   source_prompt: "Config validator with JSON schema and all-errors reporting"
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

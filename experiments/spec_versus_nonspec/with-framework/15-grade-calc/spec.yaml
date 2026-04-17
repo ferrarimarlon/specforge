@@ -66,7 +66,7 @@ required_evidence:
   - "class median computed correctly for even number of students"
 metadata:
   source_prompt: "Grade calculator with weight normalization and GPA stats"
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

@@ -23,12 +23,12 @@ RED = "\033[38;5;203m"
 ORANGE = "\033[38;5;216m"
 
 WORDMARK = (
-    r"  ____                  ______                     ",
-    r" / ___| _ __   ___  ___|  ___|__  _ __ __ _  ___  ",
-    r" \___ \| '_ \ / _ \/ __| |_ / _ \| '__/ _` |/ _ \ ",
-    r"  ___) | |_) |  __/ (__|  _| (_) | | | (_| |  __/ ",
-    r" |____/| .__/ \___|\___|_|  \___/|_|  \__, |\___| ",
-    r"       |_|                            |___/       ",
+    r"  ______                    __  ___      _____                 ",
+    r" / ____/___  _________ ____/  |/  /_  __/ ___/____  ___  _____ ",
+    r"/ /_  / __ \/ ___/ __ `/ _  /|_/ / / / /\__ \/ __ \/ _ \/ ___/ ",
+    r"/ __/ / /_/ / /  / /_/ /  __/  / / /_/ /___/ / /_/ /  __/ /    ",
+    r"/_/    \____/_/   \__, /\___/_/ /_/\__, //____/ .___/\___/_/     ",
+    r"                 /____/           /____/     /_/                 ",
 )
 
 
@@ -44,7 +44,7 @@ def render_banner() -> str:
         _frame_line("+", "-", "+", inner_width),
         *_frame_multiline(wordmark, inner_width),
         _frame_content("", inner_width),
-        _frame_content(f"{BOLD}{ORANGE}SpecForge{RESET}  {DIM}{SLATE}v{__version__}{RESET}", inner_width),
+        _frame_content(f"{BOLD}{ORANGE}ForgeMySpec{RESET}  {DIM}{SLATE}v{__version__}{RESET}", inner_width),
         _frame_content(f"{STEEL}Compile requirements into Claude execution artifacts{RESET}", inner_width),
         _frame_content("", inner_width),
         _frame_split(
@@ -84,12 +84,12 @@ def render_footer() -> str:
 
 def render_help() -> str:
     lines = [
-        f"{BOLD}{ORANGE}SpecForge help{RESET}",
-        f"{STEEL}specforge \"<task text>\"{RESET}",
+        f"{BOLD}{ORANGE}ForgeMySpec help{RESET}",
+        f"{STEEL}forgemyspec \"<task text>\"{RESET}",
         f"{DIM}{SLATE}Run directly from the shell with a positional requirement.{RESET}",
-        f"{STEEL}specforge --prompt <text>{RESET}",
+        f"{STEEL}forgemyspec --prompt <text>{RESET}",
         f"{DIM}{SLATE}Provide the requirement as a named argument.{RESET}",
-        f"{STEEL}specforge --from-file <prompt.txt>{RESET}",
+        f"{STEEL}forgemyspec --from-file <prompt.txt>{RESET}",
         f"{DIM}{SLATE}Load the requirement from a file.{RESET}",
         f"{STEEL}/quit{RESET}",
         f"{DIM}{SLATE}Exit the interactive client.{RESET}",
@@ -100,7 +100,7 @@ def render_help() -> str:
 def render_shell_intro() -> str:
     return (
         f"{BOLD}{STEEL}Describe the requirement you want to compile.{RESET} "
-        f"{DIM}{SLATE}SpecForge will ask for the output folder next.{RESET}"
+        f"{DIM}{SLATE}ForgeMySpec will ask for the output folder next.{RESET}"
     )
 
 

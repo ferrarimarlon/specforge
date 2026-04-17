@@ -3,16 +3,15 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "specforge"
+name = "forgemyspec"
 version = "0.1.0"
-description = "Turn prompts into concrete specs and Claude-ready bundles; includes Claude Code skills under plugins/specforge/ (symlinked into .claude/skills/)."
+description = "Turn prompts into concrete specs and Claude-ready bundles; includes Claude Code skills under plugins/forgemyspec/ (symlinked into .claude/skills/)."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = ["PyYAML>=6.0", "pydantic>=2.8"]
 
 [project.scripts]
-specforge = "opsspec.cli:main"
-opsspec = "opsspec.cli:main"
+forgemyspec = "forgemyspec.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

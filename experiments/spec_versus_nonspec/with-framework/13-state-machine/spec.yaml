@@ -66,7 +66,7 @@ required_evidence:
   - "history tracked correctly"
 metadata:
   source_prompt: "State machine CLI with validation and guard conditions"
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

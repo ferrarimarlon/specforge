@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Time Tracker CLI — WITH SpecForge framework.
+"""Time Tracker CLI — WITH ForgeMySpec framework.
 Spec: spec.yaml v0.1
 Rules: overlap detection, HH:MM:SS format, project/date report.
 """

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Budget Tracker CLI — WITH SpecForge framework.
+"""Budget Tracker CLI — WITH ForgeMySpec framework.
 Spec: spec.yaml v0.1
 Rules: category validation, 80% near-limit alert, reset preserves budgets.
 """

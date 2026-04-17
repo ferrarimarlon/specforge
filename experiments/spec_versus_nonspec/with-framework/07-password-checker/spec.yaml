@@ -62,7 +62,7 @@ required_evidence:
   - "entropy of single-char password is 0"
 metadata:
   source_prompt: "Password policy checker with Shannon entropy and random generation"
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

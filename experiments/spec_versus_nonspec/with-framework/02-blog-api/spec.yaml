@@ -103,7 +103,7 @@ metadata:
     Build a REST Blog API in Python using only the standard library (http.server
     + sqlite3). CRUD for posts, X-API-Key auth, JSON bodies, localhost:8080,
     single file blog_api.py.
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

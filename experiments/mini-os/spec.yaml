@@ -122,7 +122,7 @@ metadata:
     build a simple operating system inside examples/mini-os — x86 bare-metal,
     minimalist resources, bootloader + kernel with VGA text output,
     no external libraries, runnable in QEMU
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

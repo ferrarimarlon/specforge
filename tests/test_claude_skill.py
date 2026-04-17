@@ -6,9 +6,9 @@ from pathlib import Path
 
 from support import make_valid_spec_data
 
-from opsspec.claude_skill import package_claude_skill
-from opsspec.generator import write_spec
-from opsspec.models import Action, Context, Hypothesis, Spec
+from forgemyspec.claude_skill import package_claude_skill
+from forgemyspec.generator import write_spec
+from forgemyspec.models import Action, Context, Hypothesis, Spec
 
 
 def _build_spec() -> Spec:

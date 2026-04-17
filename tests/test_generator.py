@@ -6,10 +6,10 @@ from pathlib import Path
 
 from support import make_valid_draft
 
-from opsspec.generator import build_spec, load_spec, spec_to_yaml, write_spec
-from opsspec.llm import LLMError, LLMProvider, LLMSettings
-from opsspec.nlp_policy import CompilerPolicy
-from opsspec.templates import build_generation_system_prompt
+from forgemyspec.generator import build_spec, load_spec, spec_to_yaml, write_spec
+from forgemyspec.llm import LLMError, LLMProvider, LLMSettings
+from forgemyspec.nlp_policy import CompilerPolicy
+from forgemyspec.templates import build_generation_system_prompt
 
 
 class FakeProvider(LLMProvider):

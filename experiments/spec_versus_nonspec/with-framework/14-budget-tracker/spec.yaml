@@ -65,7 +65,7 @@ required_evidence:
   - "reset clears expenses but keeps budgets"
 metadata:
   source_prompt: "Budget tracker CLI with alerts and category validation"
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

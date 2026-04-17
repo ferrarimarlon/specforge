@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cron Expression Parser CLI — WITH SpecForge framework.
+"""Cron Expression Parser CLI — WITH ForgeMySpec framework.
 Spec: spec.yaml v0.1
 Rules: 5-field, expand to sets, iterate minute-by-minute, skip invalid dates.
 """

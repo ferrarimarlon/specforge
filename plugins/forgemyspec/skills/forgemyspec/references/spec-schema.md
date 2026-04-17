@@ -1,6 +1,6 @@
 # spec.yaml schema (reference)
 
-Operational spec for SpecForge. Lists are deduplicated when normalized in the Python compiler; inside Claude, preserve clear, non-redundant entries.
+Operational spec for ForgeMySpec. Lists are deduplicated when normalized in the Python compiler; inside Claude, preserve clear, non-redundant entries.
 
 ## Top-level
 

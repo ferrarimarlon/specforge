@@ -1,0 +1,1 @@
+../../plugins/forgemyspec/agents/forgemyspec-default.md

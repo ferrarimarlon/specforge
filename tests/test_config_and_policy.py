@@ -9,8 +9,8 @@ from unittest.mock import patch
 
 from support import ROOT
 
-from opsspec.config import load_default_dotenvs, load_dotenv
-from opsspec.nlp_policy import load_compiler_policy
+from forgemyspec.config import load_default_dotenvs, load_dotenv
+from forgemyspec.nlp_policy import load_compiler_policy
 
 
 class ConfigAndPolicyTests(unittest.TestCase):

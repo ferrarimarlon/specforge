@@ -61,7 +61,7 @@ required_evidence:
   - "report groups correctly by project"
 metadata:
   source_prompt: "Time tracker CLI with overlap detection and reporting"
-  generator: specforge-skill
+  generator: forgemyspec-skill
   model: claude-sonnet-4-6
   scope_contract:
     must_include:

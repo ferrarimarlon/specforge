@@ -4,8 +4,8 @@ import unittest
 
 from support import make_valid_spec_data
 
-from opsspec.linting import lint_spec
-from opsspec.nlp_policy import CompilerPolicy
+from forgemyspec.linting import lint_spec
+from forgemyspec.nlp_policy import CompilerPolicy
 
 
 class LintingTests(unittest.TestCase):

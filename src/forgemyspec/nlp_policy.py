@@ -8,7 +8,7 @@ from typing import Any, Dict, Set
 import yaml
 
 
-DEFAULT_POLICY_FILE = ".specforge-policy.yaml"
+DEFAULT_POLICY_FILE = ".forgemyspec-policy.yaml"
 
 
 class PolicyConfigError(RuntimeError):
@@ -63,7 +63,7 @@ def _candidate_paths(path: str | None) -> list[Path]:
     ordered: list[Path] = []
     if path:
         ordered.append(Path(path))
-    env_path = os.getenv("SPECFORGE_POLICY") or os.getenv("SPECFORGE_NLP_POLICY")
+    env_path = os.getenv("FORGEMYSPEC_POLICY") or os.getenv("FORGEMYSPEC_NLP_POLICY")
     if env_path:
         ordered.append(Path(env_path))
     ordered.append(Path.cwd() / DEFAULT_POLICY_FILE)
