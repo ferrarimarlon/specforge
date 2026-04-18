@@ -30,8 +30,6 @@ That advantage matters in the places teams actually pay for mistakes: approval f
 
 For tiny one-off scripts, the extra structure may not matter. For work with multiple interacting constraints and real failure modes, ForgeMySpec gives the agent a measurable advantage.
 
-![Average Score by Category](experiments/average_score_by_category.png)
-
 Full data: [`experiments/COMPARATIVE_REPORT.md`](experiments/COMPARATIVE_REPORT.md)
 
 ---
