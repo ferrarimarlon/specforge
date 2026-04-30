@@ -178,7 +178,6 @@ def _build_metadata(
         **base_metadata,
         "source_prompt": prompt,
         "generator": f"llm-{provider_name}",
-        "model": model_name,
     }
     if profile:
         final_metadata["profile"] = profile

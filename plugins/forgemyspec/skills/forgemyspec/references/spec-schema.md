@@ -9,11 +9,11 @@ Operational spec for ForgeMySpec. Lists are deduplicated when normalized in the 
 | `version` | string | e.g. `0.1` |
 | `title` | string | Non-empty |
 | `objective` | string | Non-empty |
-| `execution_mode` | string | e.g. `advisory`, `step_by_step` |
+| `execution_mode` | string | Always `critical` — treat every spec as a high-stakes contract |
 | `context` | object | See below |
 | `constraints` | string[] | Hard limits |
 | `success_criteria` | string[] | Definition of done |
-| `hypotheses` | object[] | `id`, `description`, `confidence` (0–1) |
+| `hypotheses` | object[] | `id`, `description`, `confidence` (0–1). Must be affirmative and testable — state what will work, never what will not be built |
 | `required_evidence` | string[] | Proof required at delivery |
 | `actions` | object[] | See below |
 | `decision_rules` | string[] | Escalation / choice rules |
@@ -37,7 +37,7 @@ Operational spec for ForgeMySpec. Lists are deduplicated when normalized in the 
 Common keys:
 
 - `source_prompt`: Original user requirement.
-- `generator`, `model`: Provenance when compiled by tooling.
-- `scope_contract`: `{ must_include: string[] }` when scope is explicit. List short phrases that must be present in the implementation. Do NOT add a `must_not_include` field — use `constraints` to document what will not be built.
+- `generator`: Provenance when compiled by tooling. Do NOT include `model`.
+- `scope_contract`: `{ must_include: string[] }` — short enforceable phrases covering critical functional requirements, security/safety constraints, and non-negotiable behaviors. Do NOT add `must_not_include` — use `constraints` for exclusions.
 
 Full detail matches the project README section “Structure of the Generated Spec”.

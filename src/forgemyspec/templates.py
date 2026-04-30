@@ -33,10 +33,11 @@ SPEC_DRAFT_SCHEMA: Dict[str, Any] = {
         }
     ],
     "decision_rules": ["string"],
+    "execution_mode": "critical",
     "metadata": {
         "profile": "string_optional",
         "scope_contract": {
-            "must_include": ["string"],
+            "must_include": ["string — critical functional requirement, security constraint, or non-negotiable behavior"],
         },
     },
 }
@@ -62,7 +63,11 @@ def build_generation_system_prompt(profile: str | None, policy: CompilerPolicy) 
         "Make success criteria testable and evidence-oriented. "
         "Every action must link to one or more hypotheses using the `supports` field. "
         "Mark `requires_confirmation=true` for destructive or high-risk actions. "
-        "Include metadata.scope_contract.must_include as short enforceable phrases for required capabilities. Do NOT add must_not_include — out-of-scope items belong in constraints. "
+        "Set execution_mode to 'critical' for all specs — treat every spec as a high-stakes contract. "
+        "Hypotheses must be affirmative and testable statements about what will work — never state what will NOT be built; those belong in constraints. "
+        "Each hypothesis must be verifiable through evidence or a concrete test, not a declaration of intent. "
+        "metadata.scope_contract.must_include must contain short enforceable phrases covering: critical functional requirements, security and safety constraints, and non-negotiable behaviors. "
+        "Do NOT add must_not_include — out-of-scope items belong in constraints. "
         f"{profile_instruction}"
         f"{action_type_instruction}"
         f"Minimum section counts: {json.dumps(policy.min_items, sort_keys=True)}. "
