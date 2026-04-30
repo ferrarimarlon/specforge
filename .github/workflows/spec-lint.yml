@@ -1,0 +1,67 @@
+name: Spec Lint & Scope Check
+
+on:
+  push:
+    paths:
+      - '**/spec.yaml'
+      - '**/.forgemyspec-policy.yaml'
+  pull_request:
+    paths:
+      - '**/spec.yaml'
+      - '**/.forgemyspec-policy.yaml'
+
+jobs:
+  lint-and-scope:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install forgemyspec
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Lint specs and check scope drift
+        run: |
+          python - <<'EOF'
+          import sys
+          import glob
+          import pathlib
+          from forgemyspec.linting import lint_spec, format_lint_report
+          from forgemyspec.scope_eval import evaluate_scope_drift, format_scope_eval
+          from forgemyspec.generator import load_spec
+
+          specs = glob.glob("**/spec.yaml", recursive=True)
+          if not specs:
+              print("No spec.yaml files found.")
+              sys.exit(0)
+
+          failed = False
+          for path in sorted(specs):
+              print(f"\n{'='*60}")
+              print(f"  {path}")
+              print(f"{'='*60}")
+
+              spec_data = load_spec(path)
+              candidate_text = pathlib.Path(path).read_text(encoding="utf-8")
+
+              # Lint + policy
+              lint_report = lint_spec(spec_data)
+              print(format_lint_report(lint_report))
+              if lint_report.has_errors:
+                  failed = True
+
+              # Scope drift
+              print()
+              scope_result = evaluate_scope_drift(spec_data, candidate_text)
+              print(format_scope_eval(scope_result))
+              if not scope_result.passed:
+                  failed = True
+
+          sys.exit(1 if failed else 0)
+          EOF
