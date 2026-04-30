@@ -45,7 +45,7 @@ class GeneratorTests(unittest.TestCase):
         self.assertEqual(spec.actions[1].supports, ["parser_2"])
         self.assertEqual(spec.metadata["source_prompt"], "build a parser cli")
         self.assertEqual(spec.metadata["generator"], "llm-fake")
-        self.assertEqual(spec.metadata["model"], "test-model")
+        self.assertNotIn("model", spec.metadata)
         self.assertEqual(spec.metadata["profile"], "cli")
         self.assertEqual(
             spec.metadata["scope_contract"],
