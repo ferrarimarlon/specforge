@@ -82,7 +82,7 @@ def _run_pipeline(
 ) -> int:
     print(render_status("Generating spec…"))
     try:
-        spec = build_spec(prompt, execution_mode="advisory", llm_settings=llm_settings, policy=policy)
+        spec = build_spec(prompt, execution_mode="critical", llm_settings=llm_settings, policy=policy)
     except LLMError as exc:
         if interactive:
             print(render_error(f"Provider '{provider}' error: {exc}"))
