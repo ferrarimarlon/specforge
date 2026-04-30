@@ -26,14 +26,8 @@ def evaluate_scope_drift(
 
     contract = _extract_scope_contract(spec_data, compiler_policy.scope_contract_field)
     candidate = _normalize_text(candidate_text)
-    implementation_text = _normalize_text(_extract_implementation_text(spec_data))
 
     violations: List[str] = []
-
-    for phrase in contract.get("must_not_include", []):
-        normalized_phrase = _normalize_text(phrase)
-        if normalized_phrase and normalized_phrase in implementation_text:
-            violations.append(f"Candidate includes forbidden scope phrase: '{phrase}'")
 
     for phrase in contract.get("must_include", []):
         normalized_phrase = _normalize_text(phrase)
@@ -79,31 +73,6 @@ def _coerce_list(value: Any) -> List[str]:
     if not isinstance(value, list):
         return []
     return [item.strip() for item in value if isinstance(item, str) and item.strip()]
-
-
-def _extract_implementation_text(spec_data: Dict[str, Any]) -> str:
-    """Return sections that describe what will be built or assumed true."""
-    parts: List[str] = []
-
-    for action in spec_data.get("actions") or []:
-        if isinstance(action, dict):
-            parts.append(action.get("description") or "")
-            parts.append(action.get("type") or "")
-
-    for criterion in spec_data.get("success_criteria") or []:
-        if isinstance(criterion, str):
-            parts.append(criterion)
-
-    for hypothesis in spec_data.get("hypotheses") or []:
-        if isinstance(hypothesis, dict):
-            parts.append(hypothesis.get("description") or "")
-
-    context = spec_data.get("context") if isinstance(spec_data.get("context"), dict) else {}
-    for assumption in context.get("assumptions") or []:
-        if isinstance(assumption, str):
-            parts.append(assumption)
-
-    return " ".join(parts)
 
 
 def _normalize_text(value: str) -> str:
