@@ -1,0 +1,16 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: crie um jogo da velha
+checks:
+  must_not_introduce:
+  - modo online
+  - "IA n\xE3o solicitada"
+  - "funcionalidades extras fora do jogo b\xE1sico"
+  - "interface gr\xE1fica como requisito obrigat\xF3rio sem confirma\xE7\xE3o"
+  must_include:
+  - jogo da velha 3x3 funcional
+  - "altern\xE2ncia de turnos"
+  - "valida\xE7\xE3o de jogadas"
+  - "detec\xE7\xE3o de vit\xF3ria e empate"
+  - "suposi\xE7\xF5es expl\xEDcitas sobre interface e modo"
+cases: []

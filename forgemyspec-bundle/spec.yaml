@@ -1,0 +1,99 @@
+version: '0.1'
+title: Criar um jogo da velha
+objective: Especificar e implementar um jogo da velha funcional.
+context:
+  system: "Solicita\xE7\xE3o em portugu\xEAs para criar um jogo da velha sem detalhes\
+    \ adicionais sobre plataforma, interface ou linguagem."
+  assumptions:
+  - "Assumir implementa\xE7\xE3o b\xE1sica e completa do jogo da velha tradicional\
+    \ 3x3."
+  - "Assumir interface textual simples como padr\xE3o, por aus\xEAncia de requisito\
+    \ de interface gr\xE1fica."
+  - "Assumir modo para dois jogadores locais, por aus\xEAncia de pedido de IA ou modo\
+    \ online."
+constraints:
+- "N\xE3o adicionar funcionalidades n\xE3o solicitadas, como modo online, ranking\
+  \ ou anima\xE7\xF5es."
+- Manter as regras tradicionais do jogo da velha 3x3.
+- "Usar uma implementa\xE7\xE3o simples e execut\xE1vel."
+- "Se linguagem ou plataforma n\xE3o forem informadas, tratar como decis\xE3o em aberto\
+  \ e registrar a suposi\xE7\xE3o adotada."
+success_criteria:
+- O jogo permite iniciar uma partida de jogo da velha 3x3.
+- "Dois jogadores podem alternar jogadas v\xE1lidas."
+- "O sistema impede jogadas em posi\xE7\xF5es ocupadas ou fora do tabuleiro."
+- "O jogo detecta corretamente vit\xF3ria por linha, coluna ou diagonal."
+- "O jogo detecta corretamente empate quando o tabuleiro \xE9 preenchido sem vencedor."
+- "H\xE1 evid\xEAncia execut\xE1vel ou demonstr\xE1vel do funcionamento b\xE1sico\
+  \ do jogo."
+hypotheses:
+- id: h1
+  description: "O usu\xE1rio deseja uma vers\xE3o b\xE1sica e funcional do jogo da\
+    \ velha, sem recursos avan\xE7ados."
+  confidence: 0.95
+- id: h2
+  description: "Na aus\xEAncia de especifica\xE7\xE3o, uma interface textual simples\
+    \ atende ao pedido."
+  confidence: 0.76
+- id: h3
+  description: "O modo esperado \xE9 local para dois jogadores humanos."
+  confidence: 0.72
+required_evidence:
+- "C\xF3digo-fonte do jogo da velha."
+- "Demonstra\xE7\xE3o de altern\xE2ncia de turnos entre dois jogadores."
+- "Evid\xEAncia de valida\xE7\xE3o de jogadas inv\xE1lidas."
+- "Evid\xEAncia de detec\xE7\xE3o de vit\xF3ria e empate."
+- "Registro expl\xEDcito das suposi\xE7\xF5es adotadas sobre interface e modo de jogo."
+actions:
+- id: a1
+  description: "Definir o escopo m\xEDnimo do jogo da velha com tabuleiro 3x3, dois\
+    \ jogadores locais e interface textual simples."
+  type: design
+  requires_confirmation: false
+  supports:
+  - h1
+  - h2
+  - h3
+- id: a2
+  description: "Implementar a l\xF3gica principal do jogo, incluindo tabuleiro, turnos,\
+    \ valida\xE7\xE3o de jogadas e condi\xE7\xF5es de vit\xF3ria ou empate."
+  type: implement
+  requires_confirmation: false
+  supports:
+  - h1
+  - h3
+- id: a3
+  description: "Validar o comportamento do jogo com cen\xE1rios de jogada v\xE1lida,\
+    \ jogada inv\xE1lida, vit\xF3ria e empate."
+  type: validate
+  requires_confirmation: false
+  supports:
+  - h1
+  - h2
+  - h3
+decision_rules:
+- "Se o usu\xE1rio n\xE3o informar linguagem, manter a escolha de tecnologia como\
+  \ suposi\xE7\xE3o expl\xEDcita e n\xE3o como requisito confirmado."
+- "Se houver conflito entre simplicidade e recursos extras, priorizar a vers\xE3o\
+  \ b\xE1sica funcional."
+- "Se a interface n\xE3o for especificada, usar interface textual simples como padr\xE3\
+  o."
+- "N\xE3o executar a\xE7\xF5es destrutivas ou que alterem sistemas externos, pois\
+  \ n\xE3o s\xE3o necess\xE1rias para este objetivo."
+execution_mode: advisory
+metadata:
+  scope_contract:
+    must_include:
+    - jogo da velha 3x3 funcional
+    - "altern\xE2ncia de turnos"
+    - "valida\xE7\xE3o de jogadas"
+    - "detec\xE7\xE3o de vit\xF3ria e empate"
+    - "suposi\xE7\xF5es expl\xEDcitas sobre interface e modo"
+    must_not_include:
+    - modo online
+    - "IA n\xE3o solicitada"
+    - "funcionalidades extras fora do jogo b\xE1sico"
+    - "interface gr\xE1fica como requisito obrigat\xF3rio sem confirma\xE7\xE3o"
+  source_prompt: crie um jogo da velha
+  generator: llm-openai
+  model: null
