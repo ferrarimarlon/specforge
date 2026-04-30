@@ -7,6 +7,7 @@ context:
     two human players to play Jogo da Velha on the same machine.
   assumptions:
   - The game runs entirely in a text-based console or terminal.
+  - network multiplayer
   - Both players take turns on the same device using keyboard input.
   - The standard 3x3 Jogo da Velha rules apply.
   - Players are represented by two distinct markers, assumed to be X and O.
