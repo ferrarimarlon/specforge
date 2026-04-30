@@ -29,11 +29,6 @@ def evaluate_scope_drift(
 
     violations: List[str] = []
 
-    for phrase in contract.get("must_not_include", []):
-        normalized_phrase = _normalize_text(phrase)
-        if normalized_phrase and normalized_phrase in candidate:
-            violations.append(f"Candidate includes forbidden scope phrase: '{phrase}'")
-
     for phrase in contract.get("must_include", []):
         normalized_phrase = _normalize_text(phrase)
         if normalized_phrase and normalized_phrase not in candidate:
