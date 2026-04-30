@@ -1,0 +1,16 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: lets create a simple, 2 human, local tictactoe game. In console. not
+  network. no pointing system.
+checks:
+  must_include:
+  - console gameplay
+  - two human players
+  - local turn-taking
+  - 3x3 board
+  - win detection
+  - draw detection
+  - input validation
+  - no networking
+  - no scoring system
+cases: []

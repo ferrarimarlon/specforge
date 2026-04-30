@@ -1,0 +1,117 @@
+version: '0.1'
+title: Local Console Tic-Tac-Toe for Two Human Players
+objective: Create a simple Tic-Tac-Toe game that runs in the console for two human
+  players on the same machine, with no networking and no points or scoring system.
+context:
+  system: A local command-line application where two human users take turns entering
+    moves to play a standard Tic-Tac-Toe game.
+  assumptions:
+  - The game uses a standard 3x3 Tic-Tac-Toe board.
+  - Players are represented by X and O.
+  - Both players use the same console session on one local machine.
+  - Input is entered via keyboard in the console.
+  - A single game session is sufficient; persistent score tracking is not required.
+  - The implementation language is not specified and may be chosen by the coding agent
+    unless constrained by the environment.
+constraints:
+- Must run locally in the console.
+- Must support exactly two human players taking turns.
+- Must not use networking or any online/multiplayer connectivity.
+- Must not include a points, score, or ranking system.
+- Should remain simple in structure and interaction.
+- Must not require graphical UI components.
+success_criteria:
+- The program starts in a console and allows two human players to play Tic-Tac-Toe
+  on the same machine.
+- The board state is displayed in a readable text format after game start and after
+  each valid move.
+- Players alternate turns between X and O.
+- The program accepts player move input and updates the correct board position when
+  the move is valid.
+- The program rejects invalid input or occupied-cell moves and prompts for another
+  move without corrupting game state.
+- The program detects and announces a win for X or O when three matching marks align
+  horizontally, vertically, or diagonally.
+- The program detects and announces a draw when all cells are filled without a winner.
+- The implementation contains no networking features and no scoring or points tracking.
+hypotheses:
+- id: h1
+  description: A standard 3x3 turn-based Tic-Tac-Toe implementation satisfies the
+    user's request for a simple local two-human console game.
+  confidence: 0.98
+- id: h2
+  description: Basic input validation is necessary to make the console game usable
+    and prevent invalid board states.
+  confidence: 0.95
+- id: h3
+  description: Excluding networking and scoring fully aligns the implementation with
+    the user's stated scope.
+  confidence: 0.99
+required_evidence:
+- Source code for the console-based Tic-Tac-Toe game.
+- Evidence that the game runs locally from the console.
+- Example output showing board rendering and alternating turns.
+- Example output showing handling of invalid input or occupied-cell selection.
+- Example output showing a win condition being detected.
+- Example output showing a draw condition being detected.
+- Evidence that no networking code or scoring system is present.
+actions:
+- id: a1
+  description: Design the game flow, board representation, turn order, input format,
+    and win/draw evaluation for a simple two-player local console Tic-Tac-Toe game.
+  type: design
+  requires_confirmation: false
+  supports:
+  - h1
+  - h3
+- id: a2
+  description: Implement the console application with a 3x3 board, alternating X/O
+    turns, local keyboard input, board display, and game loop logic.
+  type: implement
+  requires_confirmation: false
+  supports:
+  - h1
+  - h3
+- id: a3
+  description: Implement input validation to reject malformed entries and moves targeting
+    occupied or out-of-range cells without changing valid game state.
+  type: implement
+  requires_confirmation: false
+  supports:
+  - h2
+- id: a4
+  description: Validate the implementation by exercising normal play, invalid input
+    handling, win detection, and draw detection in the console.
+  type: validate
+  requires_confirmation: false
+  supports:
+  - h1
+  - h2
+  - h3
+decision_rules:
+- If implementation language is unspecified, choose the simplest language supported
+  by the working environment for a console program.
+- If input format is unspecified, use a simple and clearly prompted format such as
+  row/column or cell number.
+- If a move is invalid, do not switch turns and prompt the same player again.
+- If a winning line is detected, end the game immediately and announce the winner.
+- If the board is full and no winning line exists, end the game as a draw.
+- Do not add AI opponents, networking, persistence, or score tracking unless explicitly
+  requested.
+execution_mode: advisory
+metadata:
+  scope_contract:
+    must_include:
+    - console gameplay
+    - two human players
+    - local turn-taking
+    - 3x3 board
+    - win detection
+    - draw detection
+    - input validation
+    - no networking
+    - no scoring system
+  source_prompt: lets create a simple, 2 human, local tictactoe game. In console.
+    not network. no pointing system.
+  generator: llm-openai
+  model: null
