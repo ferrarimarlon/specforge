@@ -99,7 +99,7 @@ jobs:
               print(f"    {'-'*18}  {'-'*30}  {'-'*30}")
 
               if not lint_report.issues and scope_result.passed:
-                  print(f"    [+]  {'(no issues)'}")
+                  print(f"    [+]  (no issues)")
               else:
                   for issue in lint_report.issues:
                       status = "fail" if issue.severity == "error" else "warn"
