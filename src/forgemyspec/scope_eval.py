@@ -26,8 +26,14 @@ def evaluate_scope_drift(
 
     contract = _extract_scope_contract(spec_data, compiler_policy.scope_contract_field)
     candidate = _normalize_text(candidate_text)
+    candidate_no_constraints = _normalize_text(_strip_constraints(spec_data, candidate_text))
 
     violations: List[str] = []
+
+    for phrase in contract.get("must_not_include", []):
+        normalized_phrase = _normalize_text(phrase)
+        if normalized_phrase and normalized_phrase in candidate_no_constraints:
+            violations.append(f"Candidate includes forbidden scope phrase: '{phrase}'")
 
     for phrase in contract.get("must_include", []):
         normalized_phrase = _normalize_text(phrase)
@@ -73,6 +79,15 @@ def _coerce_list(value: Any) -> List[str]:
     if not isinstance(value, list):
         return []
     return [item.strip() for item in value if isinstance(item, str) and item.strip()]
+
+
+def _strip_constraints(spec_data: Dict[str, Any], candidate_text: str) -> str:
+    constraints = spec_data.get("constraints") if isinstance(spec_data.get("constraints"), list) else []
+    result = candidate_text
+    for item in constraints:
+        if isinstance(item, str):
+            result = result.replace(item, "")
+    return result
 
 
 def _normalize_text(value: str) -> str:
