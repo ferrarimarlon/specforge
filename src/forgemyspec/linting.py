@@ -54,9 +54,13 @@ def lint_spec(spec_data: Dict[str, Any], policy: CompilerPolicy | None = None) -
     _validate_min_items("actions", actions, add, compiler_policy)
     _validate_min_items("decision_rules", decision_rules, add, compiler_policy)
 
+    _validate_execution_mode(spec_data, add)
     _validate_hypotheses(hypotheses, add)
+    _validate_hypotheses_quality(hypotheses, add)
     _validate_actions(actions, add, compiler_policy)
     _validate_traceability_links(actions, hypotheses, add, compiler_policy)
+    _validate_traceability_breadth(actions, hypotheses, add)
+    _validate_evidence_quality(required_evidence, add)
     _validate_metadata(spec_data, add, compiler_policy)
 
     _warn_duplicates(constraints, add, "constraints")
@@ -279,6 +283,76 @@ def _validate_metadata(spec_data: Dict[str, Any], add, policy: CompilerPolicy) -
                 "LINT-META-001",
                 f"metadata.{key} must be a non-empty string",
                 f"metadata.{key}",
+            )
+
+
+_NEGATION_WORDS = {"not", "no", "never", "without", "excluding", "avoid", "avoids", "excluded", "omit", "omits"}
+_EVIDENCE_NOISE_PREFIXES = ("source code", "the source code", "codebase", "the codebase", "implementation", "the implementation")
+
+
+def _validate_execution_mode(spec_data: Dict[str, Any], add) -> None:
+    mode = spec_data.get("execution_mode")
+    if isinstance(mode, str) and mode.strip() and mode.strip() != "critical":
+        add(
+            "warning",
+            "LINT-STRUCT-003",
+            f"execution_mode is '{mode.strip()}'; expected 'critical' for high-stakes specs",
+            "execution_mode",
+        )
+
+
+def _validate_hypotheses_quality(hypotheses: List[Any], add) -> None:
+    for index, item in enumerate(hypotheses, start=1):
+        if not isinstance(item, dict):
+            continue
+        description = item.get("description", "")
+        if not isinstance(description, str):
+            continue
+        words = set(re.sub(r"[^a-z\s]", "", _normalize_text(description)).split())
+        if words & _NEGATION_WORDS:
+            add(
+                "warning",
+                "LINT-HY-007",
+                "Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+                f"hypotheses[{index}].description",
+            )
+
+
+def _validate_traceability_breadth(actions: List[Any], hypotheses: List[Any], add) -> None:
+    hypothesis_ids = {
+        item.get("id")
+        for item in hypotheses
+        if isinstance(item, dict) and isinstance(item.get("id"), str) and item.get("id").strip()
+    }
+    if len(hypothesis_ids) < 2:
+        return
+    for index, action in enumerate(actions, start=1):
+        if not isinstance(action, dict):
+            continue
+        supports = action.get("supports")
+        if not isinstance(supports, list):
+            continue
+        linked = {e for e in supports if isinstance(e, str) and e.strip()}
+        if linked and linked >= hypothesis_ids:
+            add(
+                "warning",
+                "LINT-TR-003",
+                "Action links to all hypotheses; verify traceability is specific, not blanket",
+                f"actions[{index}].supports",
+            )
+
+
+def _validate_evidence_quality(required_evidence: List[Any], add) -> None:
+    for index, item in enumerate(required_evidence, start=1):
+        if not isinstance(item, str):
+            continue
+        normalized = _normalize_text(item).strip()
+        if any(normalized.startswith(prefix) for prefix in _EVIDENCE_NOISE_PREFIXES):
+            add(
+                "warning",
+                "LINT-EV-001",
+                "Evidence item describes an artifact, not an observable output; prefer runnable examples, test results, or concrete outputs",
+                f"required_evidence[{index}]",
             )
 
 

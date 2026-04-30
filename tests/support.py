@@ -103,24 +103,22 @@ def make_valid_spec_data() -> Dict[str, Any]:
             },
             {
                 "id": "a2",
-                "description": "Validate the CLI behavior with examples.",
+                "description": "Validate error reporting with invalid expression examples.",
                 "type": "validate",
                 "requires_confirmation": False,
-                "supports": ["h1", "h2"],
+                "supports": ["h2"],
             },
         ],
         "decision_rules": [
             "Stop and ask when a destructive change is required.",
             "Prefer the simplest parser that satisfies the requirements.",
         ],
-        "execution_mode": "step_by_step",
+        "execution_mode": "critical",
         "metadata": {
             "source_prompt": "build a parser cli",
             "generator": "llm-openai",
-            "model": "test-model",
             "scope_contract": {
                 "must_include": ["parser cli", "argument parsing"],
-                "must_not_include": ["web ui", "database"],
             },
         },
     }

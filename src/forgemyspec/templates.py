@@ -61,6 +61,7 @@ def build_generation_system_prompt(profile: str | None, policy: CompilerPolicy) 
         "Do not invent features outside the prompt. "
         "When details are missing, create explicit assumptions. "
         "Make success criteria testable and evidence-oriented. "
+        "required_evidence items must be observable outputs — runnable examples, test results, or concrete console/log outputs. Never list source code or the implementation itself as evidence. "
         "Every action must link to one or more hypotheses using the `supports` field. "
         "Mark `requires_confirmation=true` for destructive or high-risk actions. "
         "Set execution_mode to 'critical' for all specs — treat every spec as a high-stakes contract. "
