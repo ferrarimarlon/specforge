@@ -43,12 +43,12 @@ hypotheses:
     a safe, user-visible error response.
   confidence: 0.97
 required_evidence:
-- Source code for the console calculator.
-- Demonstration output or tests showing correct addition, subtraction, multiplication,
-  and division results.
-- Demonstration output or tests showing handling of invalid numeric input.
-- Demonstration output or tests showing handling of unsupported operators.
-- Demonstration output or tests showing safe handling of division by zero.
+- Console session output showing correct results for addition, subtraction, multiplication,
+  and division with sample inputs.
+- Console session output showing a clear error message when invalid numeric input is entered.
+- Console session output showing a clear error message when an unsupported operator is entered.
+- Console session output showing a safe error message when division by zero is requested
+  without crashing the application.
 actions:
 - id: a1
   description: Analyze the request and define the calculator input/output flow for
@@ -57,8 +57,6 @@ actions:
   requires_confirmation: false
   supports:
   - h1
-  - h2
-  - h3
 - id: a2
   description: Design the console prompts, supported operators, validation rules,
     and result/error messaging behavior.
@@ -67,11 +65,10 @@ actions:
   supports:
   - h1
   - h2
-  - h3
 - id: a3
   description: Implement the console calculator to read input, validate operands and
     operator, perform the selected arithmetic operation, and display the result or
-    error message.
+    error message. Include explicit division-by-zero guard without using eval or exec.
   type: implement
   requires_confirmation: false
   supports:
@@ -83,7 +80,10 @@ actions:
     four operations, invalid input, unsupported operators, and division by zero.
   type: validate
   requires_confirmation: false
-  supports: []
+  supports:
+  - h1
+  - h2
+  - h3
 decision_rules:
 - If the user input format is not otherwise specified, use an interactive prompt sequence
   for first number, operator, and second number.
