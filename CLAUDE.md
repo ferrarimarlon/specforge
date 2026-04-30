@@ -7,7 +7,7 @@ This project uses **ForgeMySpec** as its default development framework. All impl
 ## Default Agent
 
 The `forgemyspec-default` agent (`plugins/forgemyspec/agents/forgemyspec-default.md`, symlinked under `.claude/agents/`) is the entry point for all development tasks. It:
-- Preloads the `forgemyspec` and `forgemyspec-implement` skills
+- Preloads the `forgemyspec`, `forgemyspec-implement`, and `forgemyspec-amend` skills
 - Enforces spec compilation before any code is written
 - Routes to the correct skill based on whether a `spec.yaml` already exists
 
@@ -19,7 +19,18 @@ The `forgemyspec-default` agent (`plugins/forgemyspec/agents/forgemyspec-default
 |---|---|
 | No spec exists for the task | Run `/forgemyspec` first |
 | Spec exists | Run `/forgemyspec-implement` |
+| Spec needs a targeted update | Run `/forgemyspec-amend` — propose delta only, lint, then confirm |
 | Spec is stale or ambiguous | Ask user to update `spec.yaml` before proceeding |
+
+## Amend Workflow
+
+Use `/forgemyspec-amend` when implementation reveals something the spec got wrong — a failed assumption, a missing constraint, a scope change. The rule:
+
+1. **Propose only the delta** — never rewrite the whole spec.
+2. **Validate first** — lint the amended spec before showing it to the user.
+3. **Show diff, get approval** — do not write until the user confirms.
+4. **Version bump** on scope changes (`0.1 → 0.2`); not required for surgical fixes.
+5. **Re-package** the bundle after writing.
 
 ## Project Layout
 
@@ -28,7 +39,7 @@ The `forgemyspec-default` agent (`plugins/forgemyspec/agents/forgemyspec-default
 ├── CLAUDE.md                          ← you are here (project memory)
 ├── plugins/forgemyspec/                 ← canonical skills + default agent source (symlinked into .claude/)
 │   ├── agents/forgemyspec-default.md
-│   └── skills/{forgemyspec,forgemyspec-implement}/
+│   └── skills/{forgemyspec,forgemyspec-implement,forgemyspec-amend}/
 ├── .claude/
 │   ├── settings.json                  ← `defaultAgent`: forgemyspec-default
 │   ├── agents/forgemyspec-default.md    ← symlink → plugins/forgemyspec/agents/…
@@ -81,4 +92,4 @@ Do not run `forgemyspec --prompt ...` — that triggers an unnecessary external 
 ## Known Pitfalls
 
 - Do not add external dependencies unless the spec's `must_include` explicitly calls for a library.
-- Do not amend a spec mid-implementation without user approval — create a new spec version instead.
+- Amending a spec mid-implementation is allowed via `/forgemyspec-amend` — but always propose the minimal delta and get user approval before writing. Do not silently rewrite the spec.

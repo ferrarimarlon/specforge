@@ -5,6 +5,7 @@ model: claude-opus-4-6
 skills:
   - forgemyspec
   - forgemyspec-implement
+  - forgemyspec-amend
 ---
 
 # ForgeMySpec Default Agent
@@ -22,8 +23,10 @@ User request
     │
     ▼
 Does a valid spec.yaml exist for this task?
-    ├── NO  → invoke /forgemyspec  → compile spec bundle → then implement
-    └── YES → invoke /forgemyspec-implement → implement from existing spec
+    ├── NO  → invoke /forgemyspec        → compile spec bundle → then implement
+    ├── YES → invoke /forgemyspec-implement → implement from existing spec
+    └── YES, but spec needs updating
+             → invoke /forgemyspec-amend  → propose delta → lint → write → re-implement
 ```
 
 ## Behavior Rules
