@@ -167,11 +167,15 @@ def _kv(key: str, value: str, iw: int) -> str:
 
 def _provider_label() -> tuple[str, str]:
     if os.getenv("OPENAI_API_KEY"):
-        model = os.getenv("OPENAI_MODEL", "gpt-4o")
-        return f"{model}  OpenAI", MINT
+        model = os.getenv("OPENAI_MODEL")
+        if model:
+            return f"{model}  OpenAI", MINT
+        return "OPENAI_MODEL missing  OpenAI", MINT
     if os.getenv("ANTHROPIC_API_KEY"):
-        model = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5")
-        return f"{model}  Anthropic", ORANGE
+        model = os.getenv("ANTHROPIC_MODEL")
+        if model:
+            return f"{model}  Anthropic", ORANGE
+        return "ANTHROPIC_MODEL missing  Anthropic", ORANGE
     return "No provider configured", GOLD
 
 

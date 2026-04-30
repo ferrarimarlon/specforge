@@ -39,11 +39,13 @@ class OpenAIResponsesProvider(LLMProvider):
         self.settings = settings
         self.api_key = settings.api_key or os.getenv("OPENAI_API_KEY")
         self.base_url = settings.base_url or os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1/responses"
-        self.model = settings.model or os.getenv("OPENAI_MODEL") or "gpt-codex"
+        self.model = settings.model or os.getenv("OPENAI_MODEL")
 
     def generate_json(self, prompt: str, system_prompt: str) -> Dict[str, Any]:
         if not self.api_key:
             raise LLMError("OPENAI_API_KEY is not configured.")
+        if not self.model:
+            raise LLMError("OPENAI_MODEL is not configured.")
 
         payload = {
             "model": self.model,
@@ -67,11 +69,13 @@ class AnthropicMessagesProvider(LLMProvider):
         self.settings = settings
         self.api_key = settings.api_key or os.getenv("ANTHROPIC_API_KEY")
         self.base_url = settings.base_url or os.getenv("ANTHROPIC_BASE_URL") or "https://api.anthropic.com/v1/messages"
-        self.model = settings.model or os.getenv("ANTHROPIC_MODEL") or "claude-3-5-sonnet-latest"
+        self.model = settings.model or os.getenv("ANTHROPIC_MODEL")
 
     def generate_json(self, prompt: str, system_prompt: str) -> Dict[str, Any]:
         if not self.api_key:
             raise LLMError("ANTHROPIC_API_KEY is not configured.")
+        if not self.model:
+            raise LLMError("ANTHROPIC_MODEL is not configured.")
 
         payload = {
             "model": self.model,

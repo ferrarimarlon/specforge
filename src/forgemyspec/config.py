@@ -17,7 +17,7 @@ def load_dotenv(path: str = ".env") -> bool:
         key, value = line.split("=", 1)
         key = key.strip()
         value = _strip_quotes(value.strip())
-        if not key or key in os.environ:
+        if not key:
             continue
         os.environ[key] = value
         loaded_any = True
@@ -25,10 +25,7 @@ def load_dotenv(path: str = ".env") -> bool:
 
 
 def load_default_dotenvs() -> bool:
-    loaded_any = False
-    for candidate in (".env", ".venv/.env"):
-        loaded_any = load_dotenv(candidate) or loaded_any
-    return loaded_any
+    return load_dotenv(".env")
 
 
 def _strip_quotes(value: str) -> str:

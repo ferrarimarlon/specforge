@@ -9,7 +9,7 @@ Requires-Dist: pydantic>=2.8
 
 # ForgeMySpec
 
-![ForgeMySpec comparative results](experiments/forgemyspec_chart.png)
+![ForgeMySpec v0.1.0 interactive CLI](docs/cli-demo.png)
 
 [![Tests](https://github.com/ferrarimarlon/forgemyspec/actions/workflows/tests.yml/badge.svg)](https://github.com/ferrarimarlon/forgemyspec/actions/workflows/tests.yml)
 
@@ -17,7 +17,29 @@ Requires-Dist: pydantic>=2.8
 
 ForgeMySpec compiles natural-language requirements into a structured artifact bundle that gives a coding agent a stable, auditable contract to work from. The bundle is a **runtime-ready execution harness for Claude**: concrete files that drive implementation and verification alongside the agent.
 
-![ForgeMySpec v0.1.0 interactive CLI](docs/cli-demo.png)
+## Why Use This?
+
+![ForgeMySpec comparative results](experiments/forgemyspec_chart.png)
+
+ForgeMySpec matters most when the task stops being trivial. Once a requirement has interacting rules, validation paths, derived fields, security constraints, or multiple edge cases, “just write the code” starts to look correct long before it is actually safe or complete. ForgeMySpec turns that ambiguity into an executable contract first, so the agent implements against a stable target instead of improvising under context pressure.
+
+Across 17 benchmark projects, both approaches usually produced something that looked functional. The difference showed up in the parts that are expensive to discover later: silent bugs, structural drift, and security mistakes that do not necessarily break the happy path. ForgeMySpec consistently held quality higher, and the gap widened as the scenarios became more complex.
+
+| | With spec | Without |
+|---|:---:|:---:|
+| Average completeness | 4.85 / 5 | 4.17 / 5 |
+| Security vulnerabilities | 0 | 1 |
+| Structural deviations | 0 | 7 |
+| Silent quality issues | 4 | 9 |
+| Projects with zero issues | 10 / 17 | 6 / 17 |
+
+**The more domain pressure you add, the more ForgeMySpec pulls away.** In simple, closed tasks, direct implementation can be enough. In medium and complex projects, the spec preserves intent while the agent navigates multiple constraints at once. Hidden drift usually starts there, and ForgeMySpec keeps the implementation anchored to the requirement.
+
+That advantage matters in the places teams actually pay for mistakes: approval flows, invariants, conditional rules, security boundaries, and business logic that cannot be reconstructed reliably from the final code alone. ForgeMySpec keeps those constraints explicit from the start and gives the agent a tighter target to execute against.
+
+For tiny one-off scripts, the extra structure may not matter. For work with multiple interacting constraints and real failure modes, ForgeMySpec gives the agent a measurable advantage.
+
+Full data: [`experiments/COMPARATIVE_REPORT.md`](experiments/COMPARATIVE_REPORT.md)
 
 ---
 
